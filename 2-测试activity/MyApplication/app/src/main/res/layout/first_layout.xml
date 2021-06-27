@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+    <Button
+        android:id="@+id/button_explicit_intent"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Button explicit intent" />
+
+    <Button
+        android:id="@+id/button_implicit_intent_action_defultCategory"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Button implicit intent (MyAction + DefualtCategory)" />
+
+    <Button
+        android:id="@+id/button_implicit_intent_action_categoy"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Button implicit intent (MyAction + MyCategory)" />
+
+    <Button
+        android:id="@+id/button_open_link"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="open a link" />
+
+    <Button
+        android:id="@+id/button_intent_with_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Intent provide addtional data to next activity" />
+
+    <Button
+        android:id="@+id/button_get_returned_info"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Intent get return data from previous activity" />
+
+    <Button
+        android:id="@+id/button_destroy_activity"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="destory activity" />
+
+</LinearLayout>
