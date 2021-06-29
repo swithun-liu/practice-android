@@ -1,13 +1,12 @@
 package com.swithun.myapplication
 
 import android.content.Intent
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.Toast
 import com.swithun.myapplication.databinding.ActivitySecondBinding
 
-class SecondActivity : AppCompatActivity() {
+class SecondActivity : BaseActivity() {
 
     private lateinit var binding: ActivitySecondBinding
 

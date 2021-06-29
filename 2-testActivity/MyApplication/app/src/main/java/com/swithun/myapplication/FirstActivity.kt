@@ -2,7 +2,6 @@ package com.swithun.myapplication
 
 import android.content.Intent
 import android.net.Uri
-import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.Menu
@@ -10,7 +9,7 @@ import android.view.MenuItem
 import android.widget.Toast
 import com.swithun.myapplication.databinding.FirstLayoutBinding
 
-class FirstActivity : AppCompatActivity() {
+class FirstActivity : BaseActivity() {
 
     private lateinit var binding: FirstLayoutBinding
 
