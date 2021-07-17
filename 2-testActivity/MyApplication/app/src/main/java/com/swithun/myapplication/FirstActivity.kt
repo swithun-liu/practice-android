@@ -58,12 +58,23 @@ class FirstActivity : BaseActivity() {
             /**
              * 传递数据给下一个 Activity
              */
-            val data = "Hello SecondActivity"
+            val data1 = "HHH data 1 HHH"
+            val data2 = "HHH data 2 HHH"
             val intent = Intent(this, SecondActivity::class.java)
-            intent.putExtra("extra_data", data)
+            intent.putExtra("param1", data1)
+            intent.putExtra("param2", data2)
             startActivity(intent)
         }
+        binding.buttonBestStartActvityWay.setOnClickListener {
+            /**
+             * 启动Activity的最佳方式
+             */
+            SecondActivity.actionStart(this, "HHH data 1 HHH", "HHH data 2 HHH")
+        }
         binding.buttonGetReturnedInfo.setOnClickListener {
+            /**
+             * 从启动的Activity获取返回信息
+             */
             val intent = Intent(this, SecondActivity::class.java)
             startActivityForResult(intent, 1)
         }

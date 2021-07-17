@@ -35,6 +35,12 @@
         android:text="Intent provide addtional data to next activity" />
 
     <Button
+        android:id="@+id/button_best_start_actvity_way"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Intent the best way to start an activity" />
+
+    <Button
         android:id="@+id/button_get_returned_info"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
