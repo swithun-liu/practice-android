@@ -33,6 +33,11 @@ class MainActivity : AppCompatActivity() {
             val intent = Intent(this, DialogActivity::class.java)
             startActivity(intent)
         }
+
+        binding.startTestConstraintLayoutActivity.setOnClickListener{
+            val intent = Intent(this, TestConstraintLayoutActivity::class.java)
+            startActivity(intent)
+        }
     }
 
     override fun onStart() {
