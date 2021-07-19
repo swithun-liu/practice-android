@@ -1,4 +1,4 @@
-package com.example.doubanmovie
+package com.example.testtabbledactivity
 
 import org.junit.Test
 
