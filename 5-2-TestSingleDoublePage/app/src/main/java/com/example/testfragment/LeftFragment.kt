@@ -37,19 +37,7 @@ class LeftFragment : Fragment() {
     ): View? { // Inflate the layout for this fragment
 //        return inflater.inflate(R.layout.fragment_left, container, false)
         binding = FragmentLeftBinding.inflate(layoutInflater, container, false)
-        replaceFragment(RightFragment())
-        binding.button.setOnClickListener {
-            replaceFragment(AnotherRightFragment())
-        }
         return binding.root
-    }
-
-    private fun replaceFragment(fragment: Fragment) {
-        val supportFragmentManager = activity?.supportFragmentManager
-        val transaction = supportFragmentManager?.beginTransaction()
-        transaction?.replace(R.id.rightlayout, fragment)
-        transaction?.addToBackStack(null)
-        transaction?.commit()
     }
 
     companion object {
