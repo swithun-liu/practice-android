@@ -4,6 +4,9 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.widget.ArrayAdapter
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView.Adapter
+import com.example.doubanmovie.MovieCardAdapter.ViewHolder
 import com.example.doubanmovie.databinding.ActivityMainBinding
 import com.google.gson.GsonBuilder
 import okhttp3.Call
@@ -21,7 +24,7 @@ class MainActivity : AppCompatActivity() {
     private lateinit var client: OkHttpClient
     private lateinit var builder: OkHttpClient.Builder
 
-    private val data = listOf("数据1", "数据2", "数据1", "数据1", "数据1", "数据1", "数据1", "数据1", "数据1", "数据1")
+    private var episodes = mutableListOf<Episode>()
 
     private val address =
         "https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&sort=recommend&page_limit=20&page_start=0"
@@ -36,16 +39,20 @@ class MainActivity : AppCompatActivity() {
         builder = OkHttpClient.Builder()
         client = builder.build()
 
-        binding.button.setOnClickListener {
-            normalRequest()
-        }
+        binding.recyclerList.layoutManager = LinearLayoutManager(this)
+        val adapter = MovieCardAdapter(episodes)
+        binding.recyclerList.adapter = adapter
 
-        val adapter = ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, data)
-        binding.listView.adapter = adapter
+        getSubjectsBox(adapter)
 
     }
 
-    private fun normalRequest() {
+    private fun refreshList(adapter: MovieCardAdapter) {
+        Log.d(TAG, "更新List -- ${adapter.itemCount}")
+        adapter.notifyDataSetChanged()
+    }
+
+    private fun getSubjectsBox(adapter: MovieCardAdapter) {
 
         val request = Request.Builder().url(address).build()
 
@@ -75,6 +82,9 @@ class MainActivity : AppCompatActivity() {
                             Log.d(TAG, i.title)
                         }
                     }
+                    episodes.addAll(subjectBox.subjects)
+                    runOnUiThread { this@MainActivity.refreshList(adapter) }
+
                 }
             }
         })
