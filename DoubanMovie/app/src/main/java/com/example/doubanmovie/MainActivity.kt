@@ -3,10 +3,7 @@ package com.example.doubanmovie
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
-import android.widget.ArrayAdapter
 import androidx.recyclerview.widget.LinearLayoutManager
-import androidx.recyclerview.widget.RecyclerView.Adapter
-import com.example.doubanmovie.MovieCardAdapter.ViewHolder
 import com.example.doubanmovie.databinding.ActivityMainBinding
 import com.google.gson.GsonBuilder
 import okhttp3.Call
@@ -26,8 +23,10 @@ class MainActivity : AppCompatActivity() {
 
     private var episodes = mutableListOf<Episode>()
 
-    private val address =
-        "https://movie.douban.com/j/search_subjects?type=movie&tag=%E7%83%AD%E9%97%A8&sort=recommend&page_limit=20&page_start=0"
+    private val getMovieAddressTemplate =
+        "https://movie.douban.com/j/search_subjects?type=movie&tag=热门&sort=recommend&page_limit=20&page_start=0"
+
+    private val getMovieTypeAddress = "https://movie.douban.com/j/search_tags?type=movie&tag=%E7%83%AD%E9%97%A8&source="
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -39,9 +38,9 @@ class MainActivity : AppCompatActivity() {
         builder = OkHttpClient.Builder()
         client = builder.build()
 
-        binding.recyclerList.layoutManager = LinearLayoutManager(this)
+        binding.movieItemList.layoutManager = LinearLayoutManager(this)
         val adapter = MovieCardAdapter(episodes)
-        binding.recyclerList.adapter = adapter
+        binding.movieItemList.adapter = adapter
 
         getSubjectsBox(adapter)
 
@@ -54,7 +53,7 @@ class MainActivity : AppCompatActivity() {
 
     private fun getSubjectsBox(adapter: MovieCardAdapter) {
 
-        val request = Request.Builder().url(address).build()
+        val request = Request.Builder().url(getMovieAddressTemplate).build()
 
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
