@@ -3,7 +3,10 @@ package com.example.doubanmovie
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
+import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView.Adapter
+import androidx.recyclerview.widget.RecyclerView.ViewHolder
 import com.example.doubanmovie.databinding.ActivityMainBinding
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -36,36 +39,53 @@ class MainActivity : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         binding = ActivityMainBinding.inflate(layoutInflater)
 
+        // ViewBinding
         val view = binding.root
         setContentView(view)
 
+        // OkHttp
         builder = OkHttpClient.Builder()
         client = builder.build()
 
+        // movieItem
         binding.movieItemList.layoutManager = LinearLayoutManager(this)
         val adapter = MovieCardAdapter(episodes)
         binding.movieItemList.adapter = adapter
 
+        // movieType
         binding.movieTypeList.layoutManager =
             LinearLayoutManager(this).also { it.orientation = LinearLayoutManager.HORIZONTAL }
         val movieTypeAdapter = MovieTypeAdapter(movieTypes)
+        movieTypeAdapter.setOnItemClickListener(object : MovieTypeAdapter.OnItemClickListener{
+            override fun onItemClick(view: View, position: Int) {
+                Log.d(TAG_movie_type, "点击${movieTypes[position]}")
+            }
+
+            override fun onItemLongClick(view: View, position: Int) {
+                Log.d(TAG_movie_type, "长按${movieTypes[position]}")
+            }
+        })
         binding.movieTypeList.adapter = movieTypeAdapter
 
-        getMovieType(movieTypeAdapter)
-        getSubjectsBox(adapter)
+        // initialize
+        getMovieType(binding.movieTypeList.adapter as MovieTypeAdapter)
+        getSubjectsBox(binding.movieItemList.adapter as MovieCardAdapter)
 
     }
 
+    // 刷新 Movie Type
     private fun refreshMovieType(adapter: MovieTypeAdapter) {
         Log.d(TAG_movie_type, "更新电影种类 -- ${adapter.itemCount}")
         adapter.notifyDataSetChanged()
     }
 
+    // 刷新 Movie List
     private fun refreshMovieList(adapter: MovieCardAdapter) {
         Log.d(TAG, "更新List -- ${adapter.itemCount}")
         adapter.notifyDataSetChanged()
     }
 
+    // 获取 Movie Type
     private fun getMovieType(adapter: MovieTypeAdapter) {
         val request = Request.Builder().url(getMovieTypeAddress).build()
 
@@ -99,6 +119,7 @@ class MainActivity : AppCompatActivity() {
         })
     }
 
+    // 获取 Movie Item List
     private fun getSubjectsBox(adapter: MovieCardAdapter) {
 
         val request = Request.Builder().url(getMovieAddressTemplate).build()
