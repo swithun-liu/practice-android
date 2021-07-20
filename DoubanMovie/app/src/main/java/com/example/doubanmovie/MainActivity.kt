@@ -1,5 +1,6 @@
 package com.example.doubanmovie
 
+import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -47,8 +48,21 @@ class MainActivity : AppCompatActivity() {
 
         // movieItem
         binding.movieItemList.layoutManager = LinearLayoutManager(this)
-        val adapter = MovieCardAdapter(episodes)
-        binding.movieItemList.adapter = adapter
+        val movieCardAdapter = MovieCardAdapter(episodes)
+        movieCardAdapter.setOnItemClickListener(object : MovieCardAdapter.OnItemClickListener{
+            override fun onItemClick(view: View, position: Int) {
+                Log.d(TAG, "点击图片")
+                val intent = Intent(this@MainActivity , MovieDetailActivity::class.java)
+                intent.putExtra("url", episodes[position].url)
+                startActivity(intent)
+            }
+
+            override fun onItemLongClick(view: View, position: Int) {
+                Log.d(TAG, "长按图片")
+            }
+
+        })
+        binding.movieItemList.adapter = movieCardAdapter
 
         // movieType
         binding.movieTypeList.layoutManager =
@@ -83,8 +97,6 @@ class MainActivity : AppCompatActivity() {
     // 刷新 Movie Type
     private fun refreshMovieType(adapter: MovieTypeAdapter) {
         Log.d(TAG_movie_type, "更新电影种类 -- ${adapter.itemCount}")
-
-
         adapter.notifyDataSetChanged()
     }
 

@@ -10,6 +10,9 @@ import coil.load
 
 class MovieCardAdapter(private val dataSet: List<Episode>) : RecyclerView.Adapter<MovieCardAdapter.ViewHolder>() {
 
+    // listener
+    private lateinit var onItemClickListener: OnItemClickListener
+
     inner class ViewHolder(view: View) : RecyclerView.ViewHolder(view) {
         val movieName: TextView = view.findViewById(R.id.movieName)
         val movieRate: TextView = view.findViewById(R.id.movieRate)
@@ -25,7 +28,26 @@ class MovieCardAdapter(private val dataSet: List<Episode>) : RecyclerView.Adapte
         holder.movieName.text = dataSet[position].title
         holder.movieRate.text = dataSet[position].rate
         holder.movieCover.load(dataSet[position].cover)
+        // listener
+        holder.movieCover.setOnClickListener{
+            onItemClickListener?.onItemClick(holder.itemView, position)
+        }
+        holder.movieCover.setOnLongClickListener{
+            onItemClickListener?.onItemLongClick(holder.itemView, position)
+            true
+        }
     }
 
     override fun getItemCount() = dataSet.size
+
+    // listener
+    interface OnItemClickListener{
+        fun onItemClick(view: View, position: Int)
+        fun onItemLongClick(view: View, position: Int)
+    }
+
+    // listener
+    fun setOnItemClickListener(listener: OnItemClickListener) {
+        this.onItemClickListener = listener
+    }
 }
