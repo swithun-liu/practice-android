@@ -57,6 +57,11 @@ class MainActivity : AppCompatActivity() {
         movieTypeAdapter.setOnItemClickListener(object : MovieTypeAdapter.OnItemClickListener {
             override fun onItemClick(view: View, position: Int) {
                 Log.d(TAG_movie_type, "点击${movieTypes[position]}")
+
+                // 选中item变色
+                movieTypeAdapter.setSelectedPosition(position)
+                refreshMovieType(movieTypeAdapter)
+
                 getSubjectsBox(
                     binding.movieItemList.adapter as MovieCardAdapter,
                     movieTypes[position]
@@ -78,6 +83,8 @@ class MainActivity : AppCompatActivity() {
     // 刷新 Movie Type
     private fun refreshMovieType(adapter: MovieTypeAdapter) {
         Log.d(TAG_movie_type, "更新电影种类 -- ${adapter.itemCount}")
+
+
         adapter.notifyDataSetChanged()
     }
 

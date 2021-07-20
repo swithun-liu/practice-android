@@ -1,5 +1,6 @@
 package com.example.doubanmovie
 
+import android.graphics.Color
 import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
@@ -15,6 +16,9 @@ class MovieTypeAdapter(private val dataSet: List<String>) :
     // listener
     private lateinit var onItemClickListener: OnItemClickListener
 
+    // 选中item变色
+    private var selectedPosition: Int = 0
+
     private val TAG_movie_type = "MainActivity Movie Type"
 
     inner class ViewHolder(itemView: View) : RecyclerView.ViewHolder(itemView) {
@@ -28,6 +32,17 @@ class MovieTypeAdapter(private val dataSet: List<String>) :
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.movieTypeText.text = dataSet[position]
+
+        // 选中item变色
+        if (position == selectedPosition) {
+            holder.movieTypeText.setTextColor(Color.WHITE)
+            holder.movieTypeText.setBackgroundColor(Color.BLACK)
+        }
+        else {
+            holder.movieTypeText.setTextColor(Color.BLACK)
+            holder.movieTypeText.setBackgroundColor(Color.WHITE)
+        }
+
         // listener
         holder.movieTypeText.setOnClickListener{
             onItemClickListener?.onItemClick(holder.itemView, position)
@@ -36,6 +51,15 @@ class MovieTypeAdapter(private val dataSet: List<String>) :
             onItemClickListener?.onItemLongClick(holder.itemView, position)
             true
         }
+    }
+
+    // 选中item变色
+    fun setSelectedPosition(position: Int) {
+        selectedPosition = position
+    }
+
+    fun getSelectedPosition(): Int {
+        return selectedPosition
     }
 
     override fun getItemCount() = dataSet.size
