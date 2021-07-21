@@ -6,6 +6,7 @@ import android.os.Bundle
 import android.util.Log
 import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.doubanmovie.databinding.ActivityMainBinding
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
@@ -27,9 +28,10 @@ class MainActivity : AppCompatActivity() {
 
     private var episodes = mutableListOf<Episode>()
     private var movieTypes = mutableListOf<String>()
+    private var currentMovieTag = "热门"
 
     private val getMovieAddress1 = "https://movie.douban.com/j/search_subjects?type=movie&tag="
-    private val getMovieAddress2 = "&sort=recommend&page_limit=20&page_start=0"
+    private val getMovieAddress2 = "&sort=recommend&page_limit=20&page_start="
 
     private val getMovieTypeAddress =
         "https://movie.douban.com/j/search_tags?type=movie&tag=%E7%83%AD%E9%97%A8&source="
@@ -47,12 +49,13 @@ class MainActivity : AppCompatActivity() {
         client = builder.build()
 
         // movieItem
-        binding.movieItemList.layoutManager = LinearLayoutManager(this)
+        val movieItemLinearLayoutManager = LinearLayoutManager(this)
+        binding.movieItemList.layoutManager = movieItemLinearLayoutManager
         val movieCardAdapter = MovieCardAdapter(episodes)
-        movieCardAdapter.setOnItemClickListener(object : MovieCardAdapter.OnItemClickListener{
+        movieCardAdapter.setOnItemClickListener(object : MovieCardAdapter.OnItemClickListener {
             override fun onItemClick(view: View, position: Int) {
                 Log.d(TAG, "点击图片")
-                val intent = Intent(this@MainActivity , MovieDetailActivity::class.java)
+                val intent = Intent(this@MainActivity, MovieDetailActivity::class.java)
                 intent.putExtra("url", episodes[position].url)
                 startActivity(intent)
             }
@@ -63,6 +66,23 @@ class MainActivity : AppCompatActivity() {
 
         })
         binding.movieItemList.adapter = movieCardAdapter
+
+        // movieItem 加载更多
+        binding.movieItemList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
+            override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
+                super.onScrolled(recyclerView, dx, dy)
+                Log.d(TAG, "触底了")
+
+                Log.d(
+                    TAG,
+                    movieItemLinearLayoutManager.findLastCompletelyVisibleItemPosition().toString()
+                )
+                if (movieItemLinearLayoutManager.findLastCompletelyVisibleItemPosition() == episodes.size - 1) {
+                    Log.d(TAG, "得加载了")
+                    getMovieItems(movieCardAdapter, currentMovieTag, episodes.size)
+                }
+            }
+        })
 
         // movieType
         binding.movieTypeList.layoutManager =
@@ -75,10 +95,11 @@ class MainActivity : AppCompatActivity() {
                 // 选中item变色
                 movieTypeAdapter.setSelectedPosition(position)
                 refreshMovieType(movieTypeAdapter)
+                currentMovieTag = movieTypes[position]
+                episodes.clear()
 
-                getSubjectsBox(
-                    binding.movieItemList.adapter as MovieCardAdapter,
-                    movieTypes[position]
+                getMovieItems(
+                    binding.movieItemList.adapter as MovieCardAdapter, movieTypes[position], null
                 )
             }
 
@@ -90,7 +111,7 @@ class MainActivity : AppCompatActivity() {
 
         // initialize
         getMovieType(binding.movieTypeList.adapter as MovieTypeAdapter)
-        getSubjectsBox(binding.movieItemList.adapter as MovieCardAdapter, null)
+        getMovieItems(binding.movieItemList.adapter as MovieCardAdapter, null, null)
 
     }
 
@@ -141,12 +162,20 @@ class MainActivity : AppCompatActivity() {
     }
 
     // 获取 Movie Item List
-    private fun getSubjectsBox(adapter: MovieCardAdapter, movieTag: String?) {
+    private fun getMovieItems(adapter: MovieCardAdapter, movieTag: String?, pageStart: Int?) {
 
+        Log.d(TAG, "############## getMovieItems ###########")
+        Log.d(TAG, "movieTag: $movieTag --- pageStart: $pageStart")
         Log.d(TAG, movieTag.toString())
         val movieTag2 = movieTag ?: "热门"
+        var pageStartString = "0"
+        pageStart?.let {
+            pageStartString = pageStart.toString()
+        }
 
-        val request = Request.Builder().url(getMovieAddress1 + movieTag2 + getMovieAddress2).build()
+        val request =
+            Request.Builder().url(getMovieAddress1 + movieTag2 + getMovieAddress2 + pageStartString)
+                .build()
         Log.d(TAG, getMovieAddress1 + movieTag2 + getMovieAddress2)
 
         client.newCall(request).enqueue(object : Callback {
@@ -175,7 +204,6 @@ class MainActivity : AppCompatActivity() {
                             Log.d(TAG, i.title)
                         }
                     }
-                    episodes.clear()
                     episodes.addAll(subjectBox.subjects)
                     runOnUiThread { this@MainActivity.refreshMovieList(adapter) }
                 }

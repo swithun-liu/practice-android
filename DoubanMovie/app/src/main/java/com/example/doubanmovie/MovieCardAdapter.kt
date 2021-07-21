@@ -36,6 +36,7 @@ class MovieCardAdapter(private val dataSet: List<Episode>) : RecyclerView.Adapte
             onItemClickListener?.onItemLongClick(holder.itemView, position)
             true
         }
+
     }
 
     override fun getItemCount() = dataSet.size
