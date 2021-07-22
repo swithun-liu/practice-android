@@ -2,8 +2,6 @@ package com.example.doubanmovie
 
 import android.content.Context
 import android.content.Intent
-import android.os.Build.VERSION
-import android.os.Build.VERSION_CODES
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -143,10 +141,11 @@ class MainActivity : AppCompatActivity() {
     }
     // 读取电影种类数据
     private fun getMovieTypeData(context: Context) {
-        val cache = File("${context.cacheDir.path.toString()}/movieType/Tags").let {
+        File("${context.cacheDir.path}/movieType/Tags").let {
             if (it.exists()) {
                 val fileInputStream = FileInputStream(it)
                 val objectInputStream = ObjectInputStream(fileInputStream)
+                @Suppress("UNCHECKED_CAST")
                 movieTypes.addAll(objectInputStream.readObject() as List<String>)
             }
         }
@@ -155,10 +154,10 @@ class MainActivity : AppCompatActivity() {
     // 保存电影列表数据
     private fun setMovieData(context: Context, episodes: MutableList<Episode>, movieTag: String) {
         Log.d(TAG, "保存数据")
-        val cacheParent = File(context.cacheDir.path.toString() + "/movieItem").also {
+        val cacheParent = File(context.cacheDir.path + "/movieItem").also {
             if (!it.exists()) it.mkdir()
         }
-        val cache = File(cacheParent, "$movieTag")
+        val cache = File(cacheParent, movieTag)
         val fileOutputStream = FileOutputStream(cache)
         val objectOutputStream = ObjectOutputStream(fileOutputStream)
         objectOutputStream.writeObject(episodes)
@@ -169,10 +168,11 @@ class MainActivity : AppCompatActivity() {
     // 读取列表数据
     private fun getMovieData(context: Context, movieTag: String) {
         Log.d(TAG, "获取数据 -- movie_$movieTag")
-        val cache = File("${context.cacheDir.path.toString()}/movieItem/$movieTag").let {
+        File("${context.cacheDir.path}/movieItem/$movieTag").let {
             if (it.exists()) {
                 val fileInputStream = FileInputStream(it)
                 val objectInputStream = ObjectInputStream(fileInputStream)
+                @Suppress("UNCHECKED_CAST")
                 episodes.addAll(objectInputStream.readObject() as List<Episode>)
             }
         }
@@ -274,7 +274,7 @@ class MainActivity : AppCompatActivity() {
                     episodes.addAll(subjectBox.subjects)
                     setMovieData(this@MainActivity, episodes, currentMovieTag)
                     runOnUiThread {
-                        refreshMovieList(adapter) //                        setData(this@MainActivity, episodes, currentMovieTag)
+                        refreshMovieList(adapter)
                     }
                 }
             }
