@@ -1,6 +1,9 @@
 package com.example.doubanmovie
 
+import android.content.Context
 import android.content.Intent
+import android.os.Build.VERSION
+import android.os.Build.VERSION_CODES
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
@@ -8,6 +11,7 @@ import android.view.View
 import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.doubanmovie.databinding.ActivityMainBinding
+import com.example.doubanmovie.entity.Episode
 import com.google.gson.GsonBuilder
 import com.google.gson.reflect.TypeToken
 import okhttp3.Call
@@ -15,7 +19,12 @@ import okhttp3.Callback
 import okhttp3.OkHttpClient
 import okhttp3.Request
 import okhttp3.Response
+import java.io.File
+import java.io.FileInputStream
+import java.io.FileOutputStream
 import java.io.IOException
+import java.io.ObjectInputStream
+import java.io.ObjectOutputStream
 
 class MainActivity : AppCompatActivity() {
 
@@ -71,12 +80,7 @@ class MainActivity : AppCompatActivity() {
         binding.movieItemList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
             override fun onScrolled(recyclerView: RecyclerView, dx: Int, dy: Int) {
                 super.onScrolled(recyclerView, dx, dy)
-                Log.d(TAG, "触底了")
 
-                Log.d(
-                    TAG,
-                    movieItemLinearLayoutManager.findLastCompletelyVisibleItemPosition().toString()
-                )
                 if (movieItemLinearLayoutManager.findLastCompletelyVisibleItemPosition() == episodes.size - 1) {
                     Log.d(TAG, "得加载了")
                     getMovieItems(movieCardAdapter, currentMovieTag, episodes.size)
@@ -109,10 +113,46 @@ class MainActivity : AppCompatActivity() {
         })
         binding.movieTypeList.adapter = movieTypeAdapter
 
-        // initialize
+        // initialize form device
+
+        getMovieData(this, currentMovieTag)
+        refreshMovieList(movieCardAdapter)
+
+        // initialize from Internet
         getMovieType(binding.movieTypeList.adapter as MovieTypeAdapter)
         getMovieItems(binding.movieItemList.adapter as MovieCardAdapter, null, null)
 
+    }
+
+    // 保存电影种类数据
+    private fun setMovieTypeData(context: Context, list: List<String>) {
+        Log.d(TAG, "保存电影种类数据")
+    }
+
+    // 保存电影列表数据
+    private fun setMovieData(context: Context, episodes: MutableList<Episode>, movieTag: String) {
+        Log.d(TAG, "保存数据")
+        val cacheParent = File(context.cacheDir.path.toString() + "/movieItem").also {
+            if (!it.exists()) it.mkdir()
+        }
+        val cache = File(cacheParent, "$movieTag")
+        val fileOutputStream = FileOutputStream(cache)
+        val objectOutputStream = ObjectOutputStream(fileOutputStream)
+        objectOutputStream.writeObject(episodes)
+        fileOutputStream.close()
+        objectOutputStream.close()
+    }
+
+    // 读取列表数据
+    private fun getMovieData(context: Context, movieTag: String) {
+        Log.d(TAG, "获取数据 -- movie_$movieTag")
+        val cache = File("${context.cacheDir.path.toString()}/movieItem/$movieTag").let {
+            if (it.exists()) {
+                val fileInputStream = FileInputStream(it)
+                val objectInputStream = ObjectInputStream(fileInputStream)
+                episodes.addAll(objectInputStream.readObject() as List<Episode>)
+            }
+        }
     }
 
     // 刷新 Movie Type
@@ -155,7 +195,9 @@ class MainActivity : AppCompatActivity() {
                     val type = object : TypeToken<List<String>>() {}.type
                     movieTypes.addAll(gson.fromJson(jsonData, type))
                     Log.d(TAG_movie_type, "转换出的movieTypes有 ${movieTypes.size} 个")
-                    runOnUiThread { this@MainActivity.refreshMovieType(adapter) }
+                    runOnUiThread {
+                        refreshMovieType(adapter)
+                    }
                 }
             }
         })
@@ -205,7 +247,10 @@ class MainActivity : AppCompatActivity() {
                         }
                     }
                     episodes.addAll(subjectBox.subjects)
-                    runOnUiThread { this@MainActivity.refreshMovieList(adapter) }
+                    setMovieData(this@MainActivity, episodes, currentMovieTag)
+                    runOnUiThread {
+                        refreshMovieList(adapter) //                        setData(this@MainActivity, episodes, currentMovieTag)
+                    }
                 }
             }
         })

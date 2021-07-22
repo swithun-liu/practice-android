@@ -1,5 +1,7 @@
 package com.example.doubanmovie.entity
 
+import java.io.Serializable
+
 data class MovieDetail(
     val actor: List<Actor>,
     val aggregateRating: AggregateRating,
@@ -12,5 +14,5 @@ data class MovieDetail(
     val image: String,
     val name: String,
     val url: String
-) {
+): Serializable {
 }
