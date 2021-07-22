@@ -83,7 +83,7 @@ class MainActivity : AppCompatActivity() {
 
                 if (movieItemLinearLayoutManager.findLastCompletelyVisibleItemPosition() == episodes.size - 1) {
                     Log.d(TAG, "得加载了")
-                    getMovieItems(movieCardAdapter, currentMovieTag, episodes.size)
+                    getMovieItems(movieCardAdapter, currentMovieTag, episodes.size, false)
                 }
             }
         })
@@ -101,9 +101,11 @@ class MainActivity : AppCompatActivity() {
                 refreshMovieType(movieTypeAdapter)
                 currentMovieTag = movieTypes[position]
                 episodes.clear()
+                getMovieData(this@MainActivity, currentMovieTag)
+                refreshMovieList(movieCardAdapter)
 
                 getMovieItems(
-                    binding.movieItemList.adapter as MovieCardAdapter, movieTypes[position], null
+                    binding.movieItemList.adapter as MovieCardAdapter, movieTypes[position], null, true
                 )
             }
 
@@ -116,17 +118,38 @@ class MainActivity : AppCompatActivity() {
         // initialize form device
 
         getMovieData(this, currentMovieTag)
+        getMovieTypeData(this)
         refreshMovieList(movieCardAdapter)
+        refreshMovieType(movieTypeAdapter)
 
         // initialize from Internet
         getMovieType(binding.movieTypeList.adapter as MovieTypeAdapter)
-        getMovieItems(binding.movieItemList.adapter as MovieCardAdapter, null, null)
+        getMovieItems(binding.movieItemList.adapter as MovieCardAdapter, null, null, true)
 
     }
 
     // 保存电影种类数据
-    private fun setMovieTypeData(context: Context, list: List<String>) {
-        Log.d(TAG, "保存电影种类数据")
+    private fun setMovieTypeData(context: Context) {
+        Log.d(TAG, "保存电影种类数据 -- ${movieTypes.size}")
+        val cacheParent = File(context.cacheDir.path.toString() + "/movieType").also {
+            if (!it.exists()) it.mkdir()
+        }
+        val cache = File(cacheParent, "Tags")
+        val fileOutputStream = FileOutputStream(cache)
+        val objectOutputStream = ObjectOutputStream(fileOutputStream)
+        objectOutputStream.writeObject(movieTypes)
+        fileOutputStream.close()
+        objectOutputStream.close()
+    }
+    // 读取电影种类数据
+    private fun getMovieTypeData(context: Context) {
+        val cache = File("${context.cacheDir.path.toString()}/movieType/Tags").let {
+            if (it.exists()) {
+                val fileInputStream = FileInputStream(it)
+                val objectInputStream = ObjectInputStream(fileInputStream)
+                movieTypes.addAll(objectInputStream.readObject() as List<String>)
+            }
+        }
     }
 
     // 保存电影列表数据
@@ -195,6 +218,7 @@ class MainActivity : AppCompatActivity() {
                     val type = object : TypeToken<List<String>>() {}.type
                     movieTypes.addAll(gson.fromJson(jsonData, type))
                     Log.d(TAG_movie_type, "转换出的movieTypes有 ${movieTypes.size} 个")
+                    setMovieTypeData(this@MainActivity)
                     runOnUiThread {
                         refreshMovieType(adapter)
                     }
@@ -204,7 +228,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     // 获取 Movie Item List
-    private fun getMovieItems(adapter: MovieCardAdapter, movieTag: String?, pageStart: Int?) {
+    private fun getMovieItems(adapter: MovieCardAdapter, movieTag: String?, pageStart: Int?, clearAll: Boolean) {
 
         Log.d(TAG, "############## getMovieItems ###########")
         Log.d(TAG, "movieTag: $movieTag --- pageStart: $pageStart")
@@ -246,6 +270,7 @@ class MainActivity : AppCompatActivity() {
                             Log.d(TAG, i.title)
                         }
                     }
+                    if(clearAll) episodes.clear()
                     episodes.addAll(subjectBox.subjects)
                     setMovieData(this@MainActivity, episodes, currentMovieTag)
                     runOnUiThread {
