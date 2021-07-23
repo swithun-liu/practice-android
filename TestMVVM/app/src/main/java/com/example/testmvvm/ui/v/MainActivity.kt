@@ -10,6 +10,7 @@ import androidx.lifecycle.ViewModelProvider
 import com.example.testmvvm.R.layout
 import com.example.testmvvm.databinding.ActivityMainBinding
 import com.example.testmvvm.ui.util.MainViewModelFactory
+import com.example.testmvvm.ui.util.MyObserver
 import com.example.testmvvm.ui.vm.MainViewModel
 
 class MainActivity : AppCompatActivity() {
@@ -25,6 +26,10 @@ class MainActivity : AppCompatActivity() {
         sp = getPreferences(Context.MODE_PRIVATE)
         val countReserved = sp.getInt("count_reserved", 0)
         setContentView(view)
+        // lifeCycle测试
+        lifecycle.addObserver(MyObserver())
+
+        // ViewModel测试
 //        viewModel = ViewModelProvider(this).get(MainViewModel::class.java) //2
         viewModel = ViewModelProvider(this, MainViewModelFactory(countReserved)).get(MainViewModel::class.java)
         binding.plusOneBtn.setOnClickListener {
@@ -36,6 +41,7 @@ class MainActivity : AppCompatActivity() {
             refreshCounter()
         }
         refreshCounter()
+
     }
 
     private fun refreshCounter() { //4
