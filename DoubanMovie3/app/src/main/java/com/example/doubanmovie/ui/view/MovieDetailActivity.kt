@@ -1,11 +1,11 @@
-package com.example.doubanmovie
+package com.example.doubanmovie.ui.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import coil.load
 import com.example.doubanmovie.databinding.ActivityMovieDetailBinding
-import com.example.doubanmovie.entity.MovieDetail
+import com.example.doubanmovie.logic.model.MovieDetail
 import com.google.gson.GsonBuilder
 import okhttp3.Call
 import okhttp3.Callback

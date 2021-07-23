@@ -5,9 +5,7 @@ import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import androidx.core.content.edit
-import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
-import com.example.testmvvm.R.layout
 import com.example.testmvvm.databinding.ActivityMainBinding
 import com.example.testmvvm.ui.util.MainViewModelFactory
 import com.example.testmvvm.ui.util.MyObserver
@@ -30,28 +28,26 @@ class MainActivity : AppCompatActivity() {
         lifecycle.addObserver(MyObserver())
 
         // ViewModel测试
-//        viewModel = ViewModelProvider(this).get(MainViewModel::class.java) //2
         viewModel = ViewModelProvider(this, MainViewModelFactory(countReserved)).get(MainViewModel::class.java)
         binding.plusOneBtn.setOnClickListener {
-            viewModel.counter++ //3
-            refreshCounter() //5
+            viewModel.plusOne()
         }
         binding.clearBtn.setOnClickListener {
-            viewModel.counter = 0
-            refreshCounter()
+            viewModel.clear()
         }
-        refreshCounter()
+//        viewModel.counter.observe(this, Observer { count ->
+//            binding.infoText.text = count.toString()
+//        })
+        viewModel.counter.observe(this) {
+            binding.infoText.text = it.toString()
+        }
 
-    }
-
-    private fun refreshCounter() { //4
-        binding.infoText.text = viewModel.counter.toString()
     }
 
     override fun onPause() {
         super.onPause()
         sp.edit {
-            putInt("count_reserved", viewModel.counter)
+            putInt("count_reserved", viewModel.counter.value ?: 0)
         }
     }
 }

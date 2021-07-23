@@ -1,4 +1,4 @@
-package com.example.doubanmovie.entity
+package com.example.doubanmovie.logic.model
 
 import java.io.Serializable
 
