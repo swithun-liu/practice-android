@@ -15,11 +15,8 @@ class MovieCardAdapter(private val dataSet: List<Episode>) :
     // listener
     private lateinit var onItemClickListener: OnItemClickListener
 
-    inner class ViewHolder(itemView: View, private val movieItemBinding: MovieItemBinding) :
+    inner class ViewHolder(itemView: View, val movieItemBinding: MovieItemBinding) :
         RecyclerView.ViewHolder(itemView) {
-        fun getBinding(): MovieItemBinding {
-            return movieItemBinding
-        }
     }
 
     override fun onCreateViewHolder(
@@ -34,8 +31,17 @@ class MovieCardAdapter(private val dataSet: List<Episode>) :
     }
 
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
-        holder.getBinding().episodeInfo = dataSet[position]
-        holder.getBinding().movieCover.load(dataSet[position].cover)
+        holder.movieItemBinding.episodeInfo = dataSet[position]
+        holder.movieItemBinding.movieCover.load(dataSet[position].cover)
+        // listener
+        holder.movieItemBinding.movieCover.setOnClickListener{
+            onItemClickListener?.onItemClick(holder.itemView, position)
+        }
+        holder.movieItemBinding.movieCover.setOnLongClickListener{
+            onItemClickListener?.onItemLongClick(holder.itemView, position)
+            true
+        }
+
     }
 
     override fun getItemCount() = dataSet.size
