@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.testmvvm">
+    package="com.example.mvvmgenerater">
 
     <application
         android:allowBackup="true"
@@ -8,14 +8,16 @@
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/Theme.TestMVVM">
-        <activity android:name=".ui.v.MainActivity">
+        android:theme="@style/Theme.MVVMGENERATER"
+        android:name="com.example.mvvmgenerater.App">
+        <activity android:name=".MainActivity">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name="com.example.mvvmgenerater.test1Activity" />
     </application>
 
 </manifest>

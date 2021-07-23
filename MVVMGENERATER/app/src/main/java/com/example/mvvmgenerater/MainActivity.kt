@@ -1,4 +1,4 @@
-package com.example.testmvvm
+package com.example.mvvmgenerater
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
