@@ -1,6 +1,5 @@
-package com.example.doubanmovie.ui.adapter
+package com.example.doubanmovie.ui.main.adapters
 
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -10,8 +9,8 @@ import androidx.recyclerview.widget.RecyclerView
 import coil.load
 import com.example.doubanmovie.R.id
 import com.example.doubanmovie.R.layout
-import com.example.doubanmovie.logic.model.Episode
-import com.example.doubanmovie.ui.adapter.MovieCardAdapter.ViewHolder
+import com.example.doubanmovie.data.model.Episode
+import com.example.doubanmovie.ui.main.adapters.MovieCardAdapter.ViewHolder
 
 class MovieCardAdapter() : RecyclerView.Adapter<ViewHolder>() {
 

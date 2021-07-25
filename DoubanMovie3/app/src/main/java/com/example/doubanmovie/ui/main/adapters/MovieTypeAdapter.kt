@@ -1,4 +1,4 @@
-package com.example.doubanmovie.ui.adapter
+package com.example.doubanmovie.ui.main.adapters
 
 import android.graphics.Color
 import android.util.Log
@@ -9,7 +9,7 @@ import android.widget.TextView
 import androidx.recyclerview.widget.RecyclerView
 import com.example.doubanmovie.R.id
 import com.example.doubanmovie.R.layout
-import com.example.doubanmovie.ui.adapter.MovieTypeAdapter.ViewHolder
+import com.example.doubanmovie.ui.main.adapters.MovieTypeAdapter.ViewHolder
 
 class MovieTypeAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
@@ -44,7 +44,7 @@ class MovieTypeAdapter() : RecyclerView.Adapter<ViewHolder>() {
         // 选中item变色
         if (position == selectedPosition) {
             holder.movieTypeText.setTextColor(Color.WHITE)
-            holder.movieTypeText.setBackgroundColor(Color.BLACK)
+            holder.movieTypeText.setBackgroundColor(Color.RED)
         } else {
             holder.movieTypeText.setTextColor(Color.BLACK)
             holder.movieTypeText.setBackgroundColor(Color.WHITE)

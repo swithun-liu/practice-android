@@ -1,11 +1,11 @@
-package com.example.doubanmovie.ui.view
+package com.example.doubanmovie.ui.main.view
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import coil.load
 import com.example.doubanmovie.databinding.ActivityMovieDetailBinding
-import com.example.doubanmovie.logic.model.MovieDetail
+import com.example.doubanmovie.data.model.MovieDetail
 import com.google.gson.GsonBuilder
 import okhttp3.Call
 import okhttp3.Callback
@@ -47,6 +47,7 @@ class MovieDetailActivity : AppCompatActivity() {
 
     private fun getMovieDetail(url: String) {
         val request = Request.Builder().url(url).build()
+        Log.d(TAG, "url: $url")
         client.newCall(request).enqueue(object : Callback {
             override fun onFailure(call: Call, e: IOException) {
                 e.printStackTrace()
@@ -56,22 +57,16 @@ class MovieDetailActivity : AppCompatActivity() {
             override fun onResponse(call: Call, response: Response) {
                 response.use {
                     if (!response.isSuccessful) throw IOException("Unexpected Code $response")
-
-                    for ((name, value) in response.headers) {
-                        Log.d(TAG, "$name: $value")
-                    }
                     response.body?.let { it1 ->
-                        Log.d(TAG, it1.toString())
+                        Log.d(TAG, "it1: ${it1.string()}" )
                         var urlAfterSub =
                             it1.string().substringAfter("<script type=\"application/ld+json\">")
                         urlAfterSub = urlAfterSub.substringBefore("</script>")
-                        Log.d(TAG, urlAfterSub)
+                        Log.d(TAG, "urlAfterSub: $urlAfterSub")
 
                         val gson = GsonBuilder().create()
                         movieDetail = gson.fromJson(urlAfterSub, MovieDetail::class.java)
-
                         Log.d(TAG, movieDetail!!.url)
-
                         runOnUiThread {
                             this@MovieDetailActivity.refreshUI()
                         }

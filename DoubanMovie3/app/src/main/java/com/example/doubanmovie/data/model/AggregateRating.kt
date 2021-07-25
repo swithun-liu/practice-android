@@ -1,4 +1,4 @@
-package com.example.doubanmovie.logic.model
+package com.example.doubanmovie.data.model
 
 data class AggregateRating(
     val bestRating: String,
