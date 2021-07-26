@@ -108,9 +108,10 @@ class ApiServiceImpl : ApiService {
             return if (it.exists()) {
                 val fileInputStream = FileInputStream(it)
                 val objectInputStream = ObjectInputStream(fileInputStream)
-                fileInputStream.close()
-                objectInputStream.close()
-                objectInputStream.readObject() as List<Episode>
+                (objectInputStream.readObject() as List<Episode>).also {
+                    fileInputStream.close()
+                    objectInputStream.close()
+                }
             } else {
                 mutableListOf()
             }
