@@ -1,1 +1,1 @@
-Service 和 Activity 通信（同进程间）
+Service 和 Activity 通信（不同进程间）

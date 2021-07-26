@@ -4,7 +4,11 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.os.Bundle
 import android.os.IBinder
+import android.os.Message
+import android.os.Messenger
+import android.os.RemoteException
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
@@ -14,12 +18,14 @@ import com.example.doubanmovie.data.api.ApiHelper
 import com.example.doubanmovie.data.api.ApiServiceImpl
 import com.example.doubanmovie.databinding.ActivityMainBinding
 import com.example.doubanmovie.service.DownloadService
-import com.example.doubanmovie.service.DownloadService.DownloadBinder
 import com.example.doubanmovie.ui.base.ViewModelFactory
 import com.example.doubanmovie.ui.main.adapters.MovieCardAdapter
 import com.example.doubanmovie.ui.main.adapters.MovieTypeAdapter
 import com.example.doubanmovie.ui.main.viewmodels.MovieItemViewModel
 import com.example.doubanmovie.ui.main.viewmodels.MovieTypeViewModel
+
+private const val MSG_SAY_HELLO = 1
+private const val MSG_DOWNLOAD_COVER = 2
 
 class MovieView(
     private var mainActivity: MainActivity, private val binding: ActivityMainBinding,
@@ -33,15 +39,20 @@ class MovieView(
     private var apiServiceImpl: ApiServiceImpl = ApiServiceImpl()
     private var apiHelper: ApiHelper = ApiHelper(apiServiceImpl)
 
-    private lateinit var downloadBinder: DownloadService.DownloadBinder
+    private var mService: Messenger? = null
+    private var bound = false
+
     private var connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             Log.d(tag, "onServiceConnected")
-            downloadBinder = service as DownloadBinder
+            mService = Messenger(service)
+            bound = true
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             Log.d(tag, "onServiceDisconnected")
+            mService = null
+            bound = false
         }
     }
 
@@ -55,8 +66,31 @@ class MovieView(
         initMovieList()
         initMovieType()
 
-        val intent = Intent(mainActivity, DownloadService::class.java)
-        mainActivity.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        Intent(mainActivity, DownloadService::class.java).also {
+            mainActivity.bindService(it, connection, Context.BIND_AUTO_CREATE)
+        }
+    }
+
+    fun downloadCover(coverUrl: String, movieName: String) {
+        val msg = Message.obtain(null, MSG_DOWNLOAD_COVER, 0, 0)
+        val bundle = Bundle()
+        bundle.putString("coverUrl", coverUrl)
+        bundle.putString("movieName", movieName)
+        msg.data = bundle
+        mService?.send(msg)
+    }
+
+    fun sayHello(v: View) {
+        if (!bound) {
+            Log.d(tag, "mService == null")
+            return
+        }
+        val msg: Message = Message.obtain(null, MSG_SAY_HELLO, 0, 0)
+        try {
+            mService?.send(msg)
+        } catch (e: RemoteException) {
+            e.printStackTrace()
+        }
     }
 
     private fun initAction() { // initialize form device
@@ -95,7 +129,8 @@ class MovieView(
 
             override fun onItemLongClick(view: View, position: Int) {
                 Log.d(tag, "长按图片")
-                downloadBinder.downloadCover(
+                sayHello(binding.root)
+                downloadCover(
                     movieItemViewModel.episode.value?.get(position)?.cover ?: "",
                     movieItemViewModel.episode.value?.get(position)?.title ?: ""
                 )
