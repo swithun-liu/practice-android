@@ -1,6 +1,10 @@
 package com.example.doubanmovie.ui.main.view
 
+import android.content.ComponentName
+import android.content.Context
 import android.content.Intent
+import android.content.ServiceConnection
+import android.os.IBinder
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
@@ -9,6 +13,8 @@ import androidx.recyclerview.widget.RecyclerView
 import com.example.doubanmovie.data.api.ApiHelper
 import com.example.doubanmovie.data.api.ApiServiceImpl
 import com.example.doubanmovie.databinding.ActivityMainBinding
+import com.example.doubanmovie.service.DownloadService
+import com.example.doubanmovie.service.DownloadService.DownloadBinder
 import com.example.doubanmovie.ui.base.ViewModelFactory
 import com.example.doubanmovie.ui.main.adapters.MovieCardAdapter
 import com.example.doubanmovie.ui.main.adapters.MovieTypeAdapter
@@ -27,6 +33,20 @@ class MovieView(
     private var apiServiceImpl: ApiServiceImpl = ApiServiceImpl()
     private var apiHelper: ApiHelper = ApiHelper(apiServiceImpl)
 
+    private lateinit var downloadBinder: DownloadService.DownloadBinder
+    private var connection = object : ServiceConnection {
+        override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
+            Log.d(tag, "onServiceConnected")
+            downloadBinder = service as DownloadBinder
+            downloadBinder.startDownload(123)
+            downloadBinder.getProgress()
+        }
+
+        override fun onServiceDisconnected(name: ComponentName?) {
+            Log.d(tag, "onServiceDisconnected")
+        }
+    }
+
     init {
         initView()
         initAction()
@@ -34,8 +54,21 @@ class MovieView(
 
     private fun initView() {
         setUpViewModel()
+        testService()
         initMovieList()
         initMovieType()
+    }
+
+    private fun testService() {
+        binding.startService.setOnClickListener {
+            Log.d(tag, "尝试 start DownloadService")
+            val intent = Intent(mainActivity, DownloadService::class.java)
+            mainActivity.startService(intent)
+        }
+        binding.bindService.setOnClickListener {
+            val intent = Intent(mainActivity, DownloadService::class.java)
+            mainActivity.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+        }
     }
 
     private fun initAction() { // initialize form device
