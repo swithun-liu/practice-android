@@ -38,8 +38,6 @@ class MovieView(
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             Log.d(tag, "onServiceConnected")
             downloadBinder = service as DownloadBinder
-            downloadBinder.startDownload(123)
-            downloadBinder.getProgress()
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
@@ -54,21 +52,11 @@ class MovieView(
 
     private fun initView() {
         setUpViewModel()
-        testService()
         initMovieList()
         initMovieType()
-    }
 
-    private fun testService() {
-        binding.startService.setOnClickListener {
-            Log.d(tag, "尝试 start DownloadService")
-            val intent = Intent(mainActivity, DownloadService::class.java)
-            mainActivity.startService(intent)
-        }
-        binding.bindService.setOnClickListener {
-            val intent = Intent(mainActivity, DownloadService::class.java)
-            mainActivity.bindService(intent, connection, Context.BIND_AUTO_CREATE)
-        }
+        val intent = Intent(mainActivity, DownloadService::class.java)
+        mainActivity.bindService(intent, connection, Context.BIND_AUTO_CREATE)
     }
 
     private fun initAction() { // initialize form device
@@ -107,6 +95,10 @@ class MovieView(
 
             override fun onItemLongClick(view: View, position: Int) {
                 Log.d(tag, "长按图片")
+                downloadBinder.downloadCover(
+                    movieItemViewModel.episode.value?.get(position)?.cover ?: "",
+                    movieItemViewModel.episode.value?.get(position)?.title ?: ""
+                )
             }
         })
         binding.movieItemList.addOnScrollListener(object : RecyclerView.OnScrollListener() {
@@ -153,6 +145,10 @@ class MovieView(
 
             override fun onItemLongClick(view: View, position: Int) {
                 Log.d(tag, "长按${movieItemViewModel.episode.value?.get(position)}")
+
+                val intent = Intent(mainActivity, DownloadService::class.java)
+                mainActivity.bindService(intent, connection, Context.BIND_AUTO_CREATE)
+                mainActivity.stopService(intent)
             }
         })
 
