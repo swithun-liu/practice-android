@@ -57,6 +57,7 @@ class MovieView(
     }
 
     init {
+        binding.clockView3.start()
         initView()
         initAction()
     }
@@ -66,9 +67,6 @@ class MovieView(
         initMovieList()
         initMovieType()
 
-        Intent(mainActivity, DownloadService::class.java).also {
-            mainActivity.bindService(it, connection, Context.BIND_AUTO_CREATE)
-        }
     }
 
     fun downloadCover(coverUrl: String, movieName: String) {
@@ -80,19 +78,6 @@ class MovieView(
         mService?.send(msg)
     }
 
-    fun sayHello(v: View) {
-        if (!bound) {
-            Log.d(tag, "mService == null")
-            return
-        }
-        val msg: Message = Message.obtain(null, MSG_SAY_HELLO, 0, 0)
-        try {
-            mService?.send(msg)
-        } catch (e: RemoteException) {
-            e.printStackTrace()
-        }
-    }
-
     private fun initAction() { // initialize form device
         movieTypeViewModel.getMovieTypeData(mainActivity)
         movieItemViewModel.getMovieDataFromFile(mainActivity, currentMovieTag)
@@ -100,6 +85,10 @@ class MovieView(
         // initialize from Internet
         movieTypeViewModel.getMovieTypeFromInternet()
         movieItemViewModel.getMovieItemsFromInternet(null, null, true)
+
+        Intent(mainActivity, DownloadService::class.java).also {
+            mainActivity.bindService(it, connection, Context.BIND_AUTO_CREATE)
+        }
     }
 
     private fun setUpViewModel() {
@@ -129,7 +118,6 @@ class MovieView(
 
             override fun onItemLongClick(view: View, position: Int) {
                 Log.d(tag, "长按图片")
-                sayHello(binding.root)
                 downloadCover(
                     movieItemViewModel.episode.value?.get(position)?.cover ?: "",
                     movieItemViewModel.episode.value?.get(position)?.title ?: ""

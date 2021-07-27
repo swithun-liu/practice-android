@@ -8,7 +8,7 @@ import com.example.doubanmovie.data.model.Episode
 import com.example.doubanmovie.data.repository.MainRepository
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
+import kotlinx.coroutines.runBlocking
 
 class MovieItemViewModel(private val mainRepository: MainRepository) : ViewModel() {
 

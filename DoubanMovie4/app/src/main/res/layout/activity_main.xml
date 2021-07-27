@@ -28,4 +28,13 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.16000003" />
 
+    <com.example.doubanmovie.ui.main.view.ClockView
+        android:id="@+id/clockView3"
+        android:layout_width="256dp"
+        android:layout_height="227dp"
+        android:background="#FD0000"
+        app:layout_constraintBottom_toBottomOf="@+id/movieItemList"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent" />
+
 </androidx.constraintlayout.widget.ConstraintLayout>
