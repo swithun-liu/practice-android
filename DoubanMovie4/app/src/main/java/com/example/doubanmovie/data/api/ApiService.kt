@@ -12,6 +12,6 @@ interface ApiService {
     suspend fun getEpisodes(): Call<List<Episode>>
     suspend fun getMovieTypesFromInternet(): List<String>
     suspend fun getMovieItemsFromInternet(movieTag: String?, pageStart: Int?): List<Episode>
-    fun setMovieDataToDisk(context: Context, movieTag: String, episodeList: List<Episode>)
-    fun getMovieDataFromDisk(context: Context, movieTag: String):List<Episode>
+    fun setMovieItemToFile(context: Context, movieTag: String, episodeList: List<Episode>)
+    fun getMovieItemFromFile(context: Context, movieTag: String):List<Episode>
 }

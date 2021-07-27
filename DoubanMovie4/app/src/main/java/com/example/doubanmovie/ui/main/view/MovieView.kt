@@ -4,11 +4,11 @@ import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.content.ServiceConnection
+import android.net.ConnectivityManager
 import android.os.Bundle
 import android.os.IBinder
 import android.os.Message
 import android.os.Messenger
-import android.os.RemoteException
 import android.util.Log
 import android.view.View
 import androidx.lifecycle.ViewModelProvider
@@ -57,16 +57,19 @@ class MovieView(
     }
 
     init {
-        binding.clockView3.start()
         initView()
         initAction()
     }
 
     private fun initView() {
         setUpViewModel()
+        initClock()
         initMovieList()
         initMovieType()
+    }
 
+    private fun initClock() {
+        binding.clockView3.start()
     }
 
     fun downloadCover(coverUrl: String, movieName: String) {
@@ -78,17 +81,27 @@ class MovieView(
         mService?.send(msg)
     }
 
-    private fun initAction() { // initialize form device
-        movieTypeViewModel.getMovieTypeData(mainActivity)
+    private fun initAction() {
+
+        // initialize form device
+        movieTypeViewModel.getMovieTypeFromFile(mainActivity)
         movieItemViewModel.getMovieDataFromFile(mainActivity, currentMovieTag)
 
-        // initialize from Internet
-        movieTypeViewModel.getMovieTypeFromInternet()
-        movieItemViewModel.getMovieItemsFromInternet(null, null, true)
+        if (deviceIsOnline()) {
+            // initialize from Internet
+            movieTypeViewModel.getMovieTypeFromInternet(mainActivity)
+            movieItemViewModel.getMovieItemsFromInternet(null, null, true)
+        }
 
         Intent(mainActivity, DownloadService::class.java).also {
             mainActivity.bindService(it, connection, Context.BIND_AUTO_CREATE)
         }
+    }
+
+    private fun deviceIsOnline(): Boolean {
+        val connMgr = mainActivity.getSystemService(Context.CONNECTIVITY_SERVICE) as ConnectivityManager
+        val networkInfo = connMgr.activeNetworkInfo
+        return networkInfo?.isConnected == true
     }
 
     private fun setUpViewModel() {
@@ -132,18 +145,20 @@ class MovieView(
                     ) ?: 0
                 ) {
                     Log.d(tag, "得加载了")
-                    movieItemViewModel.getMovieItemsFromInternet(
-                        currentMovieTag, movieItemViewModel.episode.value?.size, false
-                    )
+                    if (deviceIsOnline()) {
+                        movieItemViewModel.getMovieItemsFromInternet(
+                            currentMovieTag, movieItemViewModel.episode.value?.size, false
+                        )
+                    }
                 }
             }
         }) // 3. setup adapter
         binding.movieItemList.adapter = movieCardAdapter
 
         movieItemViewModel.episode.observe(mainActivity, {
-            Log.d(tag, "MovieItem 触发观察")
             movieCardAdapter.setDataSet(it)
             binding.movieItemList.adapter?.notifyDataSetChanged() //
+            movieItemViewModel.setMovieDataToFile(mainActivity, currentMovieTag)
         })
 
     }
@@ -163,7 +178,11 @@ class MovieView(
                 movieTypeViewModel.refresh()
                 currentMovieTag = movieTypeViewModel.movieTypes.value?.get(position).toString()
                 Log.d(tag, "点击${currentMovieTag}")
-                movieItemViewModel.getMovieItemsFromInternet(currentMovieTag, null, true)
+                movieItemViewModel.getMovieDataFromFile(mainActivity, currentMovieTag)
+                if (deviceIsOnline()) {
+                    movieItemViewModel.clearAll()
+                    movieItemViewModel.getMovieItemsFromInternet(currentMovieTag, null, true)
+                }
             }
 
             override fun onItemLongClick(view: View, position: Int) {

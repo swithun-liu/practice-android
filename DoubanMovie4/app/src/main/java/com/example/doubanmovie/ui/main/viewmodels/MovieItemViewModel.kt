@@ -8,7 +8,6 @@ import com.example.doubanmovie.data.model.Episode
 import com.example.doubanmovie.data.repository.MainRepository
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.runBlocking
 
 class MovieItemViewModel(private val mainRepository: MainRepository) : ViewModel() {
 
@@ -25,6 +24,11 @@ class MovieItemViewModel(private val mainRepository: MainRepository) : ViewModel
         _episodes.postValue(episodeList)
     }
 
+    fun clearAll() {
+        episodeList.clear()
+        refresh()
+    }
+
     // 网络：获取电影列表
     fun getMovieItemsFromInternet(movieTag: String?, pageStart: Int?, clearAll: Boolean) {
         GlobalScope.launch {
@@ -36,12 +40,12 @@ class MovieItemViewModel(private val mainRepository: MainRepository) : ViewModel
 
     // 本地：保存电影列表
     fun setMovieDataToFile(context: Context, movieTag: String) {
-        mainRepository.setMovieDataToFile(context, movieTag, episodeList)
+        mainRepository.setMovieItemToFile(context, movieTag, episodeList)
     }
 
     // 本地：获取电影列表
     fun getMovieDataFromFile(context: Context, movieTag: String) {
-        episodeList = mainRepository.getMovieDataFromFile(context, movieTag) as MutableList<Episode>
+        episodeList = mainRepository.getMovieItemFromFile(context, movieTag) as MutableList<Episode>
         refresh()
     }
 

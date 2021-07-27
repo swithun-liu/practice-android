@@ -88,7 +88,7 @@ class ApiServiceImpl : ApiService {
     }
 
     // 本地：保存电影列表
-    override fun setMovieDataToDisk(context: Context, movieTag: String, episodeList: List<Episode>) {
+    override fun setMovieItemToFile(context: Context, movieTag: String, episodeList: List<Episode>) {
         Log.d(tag, "保存数据 -- $movieTag -- ${episodeList.size}条")
         val cacheParent = File(context.cacheDir.path + "/movieItem").also {
             if (!it.exists()) it.mkdir()
@@ -102,7 +102,7 @@ class ApiServiceImpl : ApiService {
     }
 
     // 本地：获取电影列表
-    override fun getMovieDataFromDisk(context: Context, movieTag: String): List<Episode> {
+    override fun getMovieItemFromFile(context: Context, movieTag: String): List<Episode> {
         Log.d(tag, "本地获取数据 -- movie_$movieTag")
         File("${context.cacheDir.path}/movieItem/$movieTag").let {
             return if (it.exists()) {

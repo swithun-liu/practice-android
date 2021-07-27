@@ -9,11 +9,6 @@ import com.example.doubanmovie.data.repository.MainRepository
 import kotlinx.coroutines.GlobalScope
 import kotlinx.coroutines.launch
 import okhttp3.OkHttpClient
-import java.io.File
-import java.io.FileInputStream
-import java.io.FileOutputStream
-import java.io.ObjectInputStream
-import java.io.ObjectOutputStream
 
 class MovieTypeViewModel(private val mainRepository: MainRepository) : ViewModel() {
 
@@ -33,39 +28,26 @@ class MovieTypeViewModel(private val mainRepository: MainRepository) : ViewModel
     }
 
     // 网络：获取电影种类
-    fun getMovieTypeFromInternet() {
+    fun getMovieTypeFromInternet(context: Context) {
         GlobalScope.launch {
             mainRepository.getMovieTypesFromInternet().also {
                 Log.d(tagMovieType, "添加到movieTypeList ${it.size}个")
+                movieTypeList.clear()
                 movieTypeList.addAll(it)
+                setMovieTypeToFile(context)
                 refresh()
             }
         }
     }
 
     // 本地：保存电影种类数据到
-    fun saveMovieTypeToDisk(context: Context) {
-        Log.d(tagMovieType, "保存电影种类数据 -- ${movieTypeList.size}")
-        val cacheParent = File(context.cacheDir.path.toString() + "/movieType").also {
-            if (!it.exists()) it.mkdir()
-        }
-        val cache = File(cacheParent, "Tags")
-        val fileOutputStream = FileOutputStream(cache)
-        val objectOutputStream = ObjectOutputStream(fileOutputStream)
-        objectOutputStream.writeObject(movieTypeList)
-        fileOutputStream.close()
-        objectOutputStream.close()
+    private fun setMovieTypeToFile(context: Context) {
+        mainRepository.setMovieTypeToFile(context, movieTypeList)
     }
 
     // 本地：获取电影种类
-    fun getMovieTypeData(context: Context) {
-        File("${context.cacheDir.path}/movieType/Tags").let {
-            if (it.exists()) {
-                val fileInputStream = FileInputStream(it)
-                val objectInputStream = ObjectInputStream(fileInputStream)
-                @Suppress("UNCHECKED_CAST") movieTypeList.addAll(objectInputStream.readObject() as List<String>)
-                refresh()
-            }
-        }
+    fun getMovieTypeFromFile(context: Context) {
+        mainRepository.getMovieTypeFromFile(context, movieTypeList)
+        refresh()
     }
 }
