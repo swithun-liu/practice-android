@@ -25,21 +25,26 @@ class DownloadService : Service() {
 
     private val tag = "DownloadService"
 
-    // acceptMsg
+    // acceptMsg from Activity
     private lateinit var mMessenger: Messenger
-    // sendMsg
+
+    // sendMsg to Activity
     private val mClients: ArrayList<Messenger> = ArrayList()
 
-    internal class IncomingHandler(private val context: Context, private val applicationContext: Context = context.applicationContext) : Handler() {
+    // acceptMsg from Activity
+    internal class IncomingHandler(
+        private val context: Context,
+        private val applicationContext: Context = context.applicationContext
+    ) : Handler(context.mainLooper) {
 
         private val tag = "DownloadService"
 
         override fun handleMessage(msg: Message) {
-            when(msg.what) {
+            when (msg.what) {
                 /** 注册Activity **/
                 MSG_REGISTER_CLIENT -> (context as DownloadService).mClients.add(msg.replyTo)
-                MSG_SAY_HELLO ->
-                    Toast.makeText(applicationContext, "Hello!", Toast.LENGTH_SHORT).show()
+                MSG_SAY_HELLO -> Toast.makeText(applicationContext, "Hello!", Toast.LENGTH_SHORT)
+                    .show()
                 MSG_DOWNLOAD_COVER -> {
                     val coverUrl = msg.data.getString("coverUrl")
                     val movieName = msg.data.getString("movieName")
@@ -47,7 +52,8 @@ class DownloadService : Service() {
 
                     Toast.makeText(applicationContext, "下载 -- $fileName", Toast.LENGTH_SHORT).show()
 
-                    val downloadManger = context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
+                    val downloadManger =
+                        context.getSystemService(Context.DOWNLOAD_SERVICE) as DownloadManager
                     val resource = Uri.parse(coverUrl)
                     Log.d(tag, "start Download movieCover -- $fileName -- from $coverUrl")
                     val request = Request(resource)
@@ -62,8 +68,7 @@ class DownloadService : Service() {
         }
     }
 
-    override fun onBind(intent: Intent): IBinder {
-        // acceptMsg
+    override fun onBind(intent: Intent): IBinder { // acceptMsg
         Toast.makeText(applicationContext, "binding", Toast.LENGTH_SHORT).show()
         mMessenger = Messenger(IncomingHandler(this))
         return mMessenger.binder

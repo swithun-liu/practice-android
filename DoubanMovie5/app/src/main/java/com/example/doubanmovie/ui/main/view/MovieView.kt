@@ -42,27 +42,29 @@ class MovieView(
     private var apiServiceImpl: ApiServiceImpl = ApiServiceImpl()
     private var apiHelper: ApiHelper = ApiHelper(apiServiceImpl)
 
-    private var mService: Messenger? = null
+    // sendMsg to Service
+    private var activityMessenger: Messenger? = null
     private var bound = false
 
-    // acceptMsg
-    private val messenger = Messenger(InComingHandler(mainActivity))
+    // acceptMsg from Service
+    private val serviceMessenger = Messenger(InComingHandler(mainActivity))
 
-    // sendMsg
+    // sendMsg to Service
     private var connection = object : ServiceConnection {
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             Log.d(tag, "onServiceConnected")
-            mService = Messenger(service)
+            activityMessenger = Messenger(service)
             bound = true
-            val message = Message()
-            message.what = MSG_REGISTER_CLIENT
-            message.replyTo = messenger
-            mService?.send(message)
+            val message = Message().also {
+                it.what = MSG_REGISTER_CLIENT
+                it.replyTo = serviceMessenger
+            }
+            activityMessenger?.send(message)
         }
 
         override fun onServiceDisconnected(name: ComponentName?) {
             Log.d(tag, "onServiceDisconnected")
-            mService = null
+            activityMessenger = null
             bound = false
         }
     }
@@ -72,7 +74,7 @@ class MovieView(
         initAction()
     }
 
-    // acceptMsg
+    // acceptMsg from Service
     internal class InComingHandler(private val context: Context) : Handler() {
         override fun handleMessage(msg: Message) {
             when (msg.what) {
@@ -94,11 +96,12 @@ class MovieView(
 
     fun downloadCover(coverUrl: String, movieName: String) { // sendMsg
         val msg = Message.obtain(null, MSG_DOWNLOAD_COVER, 0, 0)
-        val bundle = Bundle()
-        bundle.putString("coverUrl", coverUrl)
-        bundle.putString("movieName", movieName)
+        val bundle = Bundle().also {
+            it.putString("coverUrl", coverUrl)
+            it.putString("movieName", movieName)
+        }
         msg.data = bundle
-        mService?.send(msg)
+        activityMessenger?.send(msg)
     }
 
     private fun initAction() {
@@ -109,10 +112,8 @@ class MovieView(
 
         if (deviceIsOnline()) { // initialize from Internet
             movieTypeViewModel.getMovieTypeFromInternet(mainActivity)
-            movieItemViewModel.getMovieItemsFromInternet(null, null,
-                clearAll = true,
-                save = true,
-                context = mainActivity
+            movieItemViewModel.getMovieItemsFromInternet(
+                null, null, clearAll = true, save = true, context = mainActivity
             )
         }
 
@@ -156,7 +157,12 @@ class MovieView(
             }
 
             override fun onItemLongClick(view: View, position: Int) {
-                Log.d(tag, "长按图片")
+                Log.d(
+                    tag,
+                    "长按图片 - ${movieItemViewModel.episode.value?.get(position)?.cover ?: ""} - ${
+                        movieItemViewModel.episode.value?.get(position)?.title ?: ""
+                    }"
+                )
                 downloadCover(
                     movieItemViewModel.episode.value?.get(position)?.cover ?: "",
                     movieItemViewModel.episode.value?.get(position)?.title ?: ""
@@ -173,8 +179,11 @@ class MovieView(
                     Log.d(tag, "得加载了")
                     if (deviceIsOnline()) {
                         movieItemViewModel.getMovieItemsFromInternet(
-                            currentMovieTag, movieItemViewModel.episode.value?.size, false,
-                            save = true, context = mainActivity
+                            currentMovieTag,
+                            movieItemViewModel.episode.value?.size,
+                            false,
+                            save = true,
+                            context = mainActivity
                         )
                     }
                 }
@@ -210,10 +219,8 @@ class MovieView(
                 movieItemViewModel.getMovieDataFromFile(mainActivity, currentMovieTag)
                 if (deviceIsOnline()) {
                     movieItemViewModel.clearAll()
-                    movieItemViewModel.getMovieItemsFromInternet(currentMovieTag, null,
-                        clearAll = true,
-                        save = true,
-                        context = mainActivity
+                    movieItemViewModel.getMovieItemsFromInternet(
+                        currentMovieTag, null, clearAll = true, save = true, context = mainActivity
                     )
                 }
             }

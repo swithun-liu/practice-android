@@ -15,7 +15,6 @@ class MovieTypeAdapter() : RecyclerView.Adapter<ViewHolder>() {
 
     // 选中item变色
     private var selectedPosition: Int = 0
-    private val TAG_movie_type = "MainActivity Movie Type"
 
     private var dataSet: List<String> = mutableListOf()
 
