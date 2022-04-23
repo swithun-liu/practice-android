@@ -27,7 +27,7 @@ class MainActivity : ComponentActivity() {
                 // A surface container using the 'background' color from the theme
                 Box(modifier = Modifier.fillMaxSize()) {
                     Text(
-                        text = time.toString(),
+                        text = time.value.toString(),
                         fontSize = 30.sp,
                         modifier = Modifier.align(Alignment.Center)
                     )
