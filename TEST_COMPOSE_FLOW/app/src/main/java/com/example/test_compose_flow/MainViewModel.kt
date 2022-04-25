@@ -19,12 +19,16 @@ class MainViewModel: ViewModel() {
         }
     }
 
+    private val _stateFlow = MutableStateFlow(0)
+    val stateFlow = _stateFlow.asStateFlow()
+
     init {
         collectFlow()
     }
 
-    // [[1, 2], [1, 2, 3]]
-    // [1, 2, 1, 2, 3]
+    fun incrementCounter() {
+        _stateFlow.value += 1
+    }
 
     private fun collectFlow() {
         val flow = flow {
@@ -39,6 +43,7 @@ class MainViewModel: ViewModel() {
             flow.onEach {
                 println("swithun-Flow: $it is delivered")
             }
+                .conflate()
                 .collect {
                     println("swithun-Flow: Now eating $it")
                     delay(1500L)
