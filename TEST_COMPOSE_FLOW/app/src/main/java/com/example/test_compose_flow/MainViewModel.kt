@@ -6,7 +6,9 @@ import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.*
 import kotlinx.coroutines.launch
 
-class MainViewModel: ViewModel() {
+class MainViewModel(
+    private val dispatchers: DispatcherProvider
+    ) : ViewModel() {
 
     // normal flow
     val countDownFlow = flow<Int> {
@@ -18,7 +20,7 @@ class MainViewModel: ViewModel() {
             currentValue--
             emit(currentValue)
         }
-    }
+    }.flowOn(dispatchers.main)
 
     private fun collectFlow() {
         val flow = flow {
@@ -29,7 +31,7 @@ class MainViewModel: ViewModel() {
             delay(100L)
             emit("Dessert")
         }
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.main) {
             flow.onEach {
                 println("swithun-Flow: $it is delivered")
             }
@@ -59,13 +61,13 @@ class MainViewModel: ViewModel() {
     val sharedFlow = _sharedFlow.asSharedFlow()
 
     fun squareNumber(number: Int) {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.main) {
             _sharedFlow.emit(number * number)
         }
     }
 
     init {
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.main) {
             // collector 1
             _sharedFlow.collect {
                 delay(2000L)
@@ -74,7 +76,7 @@ class MainViewModel: ViewModel() {
             println("swithun-xxxxFirst  CoroutineScope continue")
         }
 
-        viewModelScope.launch {
+        viewModelScope.launch(dispatchers.main) {
             // collector 2
             _sharedFlow.collect {
                 delay(3000L)
