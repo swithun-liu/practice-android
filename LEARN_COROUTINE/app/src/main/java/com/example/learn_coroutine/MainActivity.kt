@@ -2,38 +2,26 @@ package com.example.learn_coroutine
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import kotlinx.coroutines.*
-import swithunPrint
+import com.example.learn_coroutine.databinding.ActivityMainBinding
 
 class MainActivity : AppCompatActivity() {
 
+    private lateinit var binding: ActivityMainBinding
+
     override fun onCreate(savedInstanceState: Bundle?) {
+        binding = ActivityMainBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
-        setContentView(R.layout.activity_main)
+        setContentView(binding.root)
 
-        runBlocking {
-            launch(Dispatchers.IO) {
-                delay(3000L)
-                swithunPrint("Finish IO coroutine 1")
-            }
-
-            launch(Dispatchers.IO) {
-                delay(3000L)
-                swithunPrint("Finish IO coroutine 1")
-            }
-        }
-
-        GlobalScope.launch {
-            launch(Dispatchers.IO) {
-                delay(3000L)
-                swithunPrint("Finish GS IO coroutine 1")
-            }
-
-            launch(Dispatchers.IO) {
-                delay(3000L)
-                swithunPrint("Finish GS IO coroutine 1")
-            }
-        }
+        /**
+         * getUser1 { user1 ->
+         *     getUser2 { user2 ->
+         *         getMessages { message ->
+         *             // construct our chat object
+         *         }
+         *     }
+         * }
+         */
 
     }
 }
