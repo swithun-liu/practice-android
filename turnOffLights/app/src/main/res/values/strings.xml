@@ -1,0 +1,5 @@
+<resources>
+    <string name="app_name">turnOffLights</string>
+    <string name="get_bluetooth_devices_list">get bluetooth devices list</string>
+    <string name="text_tint">text tint</string>
+</resources>
