@@ -3,16 +3,19 @@ package com.swithun.myapplication
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import com.swithun.myapplication.databinding.ActivityMainBinding
-import kotlinx.coroutines.CoroutineScope
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.SupervisorJob
-import kotlinx.coroutines.launch
+import kotlinx.coroutines.*
+import kotlin.concurrent.thread
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
 
-    private val mainScope = CoroutineScope(SupervisorJob() + Dispatchers.Main + Dispatchers.IO)
+    private val myCoroutineExceptionHandler =
+        CoroutineExceptionHandler { coroutineContext, throwable ->
+            swithunLog("error")
+        }
+
+    private val mainScope = CoroutineScope(Dispatchers.IO + SupervisorJob() + myCoroutineExceptionHandler)
 
     override fun onCreate(savedInstanceState: Bundle?) {
 
