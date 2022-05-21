@@ -2,87 +2,43 @@ package com.example.learn_coroutine
 
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
-import android.util.Log
 import com.example.learn_coroutine.databinding.ActivityMainBinding
-import com.google.android.gms.tasks.SuccessContinuation
-import com.google.android.gms.tasks.Task
-import com.google.firebase.firestore.DocumentSnapshot
-import com.google.firebase.firestore.LoadBundleTask
-import com.google.firebase.firestore.ktx.firestore
-import com.google.firebase.ktx.Firebase
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlinx.coroutines.tasks.await
-import kotlinx.coroutines.withContext
-import retrofit2.*
-import retrofit2.converter.gson.GsonConverterFactory
 import swithunLog
-
-const val BASE_URL = "https://jsonplaceholder.typicode.com/"
+import swithunPrint
+import java.lang.Thread.sleep
+import kotlin.concurrent.thread
+import kotlin.coroutines.*
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var binding: ActivityMainBinding
+    private val mainScope = CoroutineScope(Dispatchers.Main)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         binding = ActivityMainBinding.inflate(layoutInflater)
         super.onCreate(savedInstanceState)
         setContentView(binding.root)
 
-        val api = Retrofit.Builder()
-            .baseUrl(BASE_URL)
-            .addConverterFactory(GsonConverterFactory.create())
-            .build()
-            .create(MyAPI::class.java)
+        val ref = ::notSuspend
+        ref.call(object : Continuation<Int> {
+            override val context = EmptyCoroutineContext
 
-        /* old version */
-        api.getComments().enqueue(object : Callback<List<Comment>> {
-            override fun onResponse(call: Call<List<Comment>>, response: Response<List<Comment>>) {
-                if (response.isSuccessful) {
-                    response.body()?.let {
-                        for (comment in it) {
-                            swithunLog(comment.toString())
-                        }
-                    }
-                }
+            override fun resumeWith(result: Result<Int>) {
+                swithunPrint("resumeWith: ${result.getOrNull()}")
             }
-
-            override fun onFailure(call: Call<List<Comment>>, t: Throwable) {
-                swithunLog("Error: $t")
-            }
-
         })
+    }
 
-        /* coroutine version */
-        GlobalScope.launch(Dispatchers.IO) {
-            // without check version
-            val comments = api.getComments().await()
-            for (comment in comments) {
-                swithunLog(comment.toString())
-            }
-            // with check version
-            val response = api.getComments().awaitResponse()
-            if (response.isSuccessful) {
-                response.body()?.let { comments ->
-                    for (comment in comments) {
-                        swithunLog(comment.toString())
-                    }
-                }
-            }
+    suspend fun notSuspend() = suspendCoroutine<Int> { continuation ->
+        thread {
+            swithunPrint("thread in ${Thread.currentThread().name} - 1")
+            sleep(1000)
+            swithunPrint("thread in ${Thread.currentThread().name} - 2")
+            continuation.resume(100)
         }
-
-        /* better coroutine version */
-        GlobalScope.launch(Dispatchers.IO) {
-            val response = api.betterGetComments()
-            if (response.isSuccessful) {
-                response.body()?.let { comments ->
-                    for (comment in comments) {
-                        swithunLog(comment.toString())
-                    }
-                }
-            }
-        }
-
     }
 }
