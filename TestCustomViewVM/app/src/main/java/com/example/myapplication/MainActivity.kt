@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.util.Log
 import android.view.LayoutInflater
+import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.databinding.ActivityMainBinding
@@ -11,7 +12,7 @@ import com.example.myapplication.testCVVM.ParentViewModel
 import com.example.myapplication.testCVVM.ShareViewModel
 import kotlinx.coroutines.launch
 
-class MainActivity : AppCompatActivity() {
+class MainActivity : ComponentActivity() {
     private lateinit var b: ActivityMainBinding
     private val vm: ParentViewModel by lazy {
         ViewModelProvider(this)[ParentViewModel::class.java]

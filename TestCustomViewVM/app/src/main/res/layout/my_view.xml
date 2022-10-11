@@ -31,7 +31,7 @@
         android:id="@+id/shareStringChildBtn"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="share 2 parent button"
+        android:text="share button"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/childString"
         app:layout_constraintEnd_toEndOf="parent"

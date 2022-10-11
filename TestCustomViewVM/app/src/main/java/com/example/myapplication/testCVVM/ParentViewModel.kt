@@ -5,14 +5,14 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class ParentViewModel: ViewModel() {
-    private val _parentStringFlow = MutableStateFlow<String>("share2ParentString: string1")
+    private val _parentStringFlow = MutableStateFlow<String>("parent: string1")
     val parentStringFlow = _parentStringFlow.asStateFlow()
 
     fun changeText() {
-        _parentStringFlow.value = if (_parentStringFlow.value == "share2ParentString: string1") {
-            "share2ParentString: string2"
+        _parentStringFlow.value = if (_parentStringFlow.value == "parent: string1") {
+            "parent: string2"
         } else {
-            "share2ParentString: string1"
+            "parent: string1"
         }
     }
 }

@@ -1,6 +1,5 @@
 package com.example.myapplication.testCVVM
 
-import android.annotation.SuppressLint
 import android.content.Context
 import android.content.res.TypedArray
 import android.util.AttributeSet
@@ -14,7 +13,6 @@ import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.R
 import com.example.myapplication.databinding.MyViewBinding
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 /**
@@ -26,7 +24,7 @@ class ChildView : ConstraintLayout {
     private var vm: ChildBaseViewMode? = null
     private var shareVm: ShareViewModel? = null
     private var scope: LifecycleCoroutineScope? = null
-    private var vmType: VMType = VMType.CHILD1
+    private var vmType: VMType = VMType.CHILD_VM1
 
 
     constructor(context: Context) : super(context) {
@@ -51,20 +49,21 @@ class ChildView : ConstraintLayout {
         val a = context.obtainStyledAttributes(
             attrs, R.styleable.ChildView, defStyle, 0
         )
-        vmType = a.getEnum(R.styleable.ChildView_viewModel, VMType.CHILD1)
+        vmType = a.getEnum(R.styleable.ChildView_viewModel, VMType.CHILD_VM1)
 
         b = MyViewBinding.inflate(LayoutInflater.from(context), this, true)
 
         a.recycle()
     }
 
+
     override fun onAttachedToWindow() {
         Log.d("swithun-xxxx", "MyView - onAttachedToWindow")
         super.onAttachedToWindow()
         findViewTreeViewModelStoreOwner()?.let { safeVMSO ->
-            vm = ViewModelProvider(safeVMSO)[when(vmType) {
-                VMType.CHILD1 -> ChildViewModel1::class.java
-                VMType.CHILD2 -> ChildViewModel2::class.java
+            vm = ViewModelProvider(safeVMSO)[when (vmType) {
+                VMType.CHILD_VM1 -> ChildViewModel1::class.java
+                VMType.CHILD_VM2 -> ChildViewModel2::class.java
             }]
             shareVm = ViewModelProvider(safeVMSO)[ShareViewModel::class.java]
         }
@@ -101,10 +100,11 @@ class ChildView : ConstraintLayout {
 }
 
 enum class VMType(val value: Int) {
-    CHILD1(0),
-    CHILD2(1);
+    CHILD_VM1(0),
+    CHILD_VM2(1);
 }
 
 inline fun <reified T : Enum<T>> TypedArray.getEnum(index: Int, default: T) =
-    getInt(index, -1).let { if (it >= 0) enumValues<T>()[it] else default
+    getInt(index, -1).let {
+        if (it >= 0) enumValues<T>()[it] else default
     }
