@@ -1,6 +1,8 @@
 package com.example.myapplication.testCVVM
 
+import android.annotation.SuppressLint
 import android.content.Context
+import android.content.res.TypedArray
 import android.util.AttributeSet
 import android.util.Log
 import android.view.LayoutInflater
@@ -10,6 +12,7 @@ import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.findViewTreeLifecycleOwner
 import androidx.lifecycle.findViewTreeViewModelStoreOwner
 import androidx.lifecycle.lifecycleScope
+import com.example.myapplication.R
 import com.example.myapplication.databinding.MyViewBinding
 import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
@@ -20,16 +23,18 @@ import kotlinx.coroutines.launch
 class ChildView : ConstraintLayout {
 
     private lateinit var b: MyViewBinding
-    private var vm: ChildViewModel? = null
+    private var vm: ChildBaseViewMode? = null
     private var shareVm: ShareViewModel? = null
     private var scope: LifecycleCoroutineScope? = null
+    private var vmType: VMType = VMType.CHILD1
+
 
     constructor(context: Context) : super(context) {
-        init()
+        init(null, 0)
     }
 
     constructor(context: Context, attrs: AttributeSet) : super(context, attrs) {
-        init()
+        init(attrs, 0)
     }
 
     constructor(context: Context, attrs: AttributeSet, defStyle: Int) : super(
@@ -37,19 +42,30 @@ class ChildView : ConstraintLayout {
         attrs,
         defStyle
     ) {
-        init()
+        init(attrs, defStyle)
     }
 
-    private fun init() {
+    private fun init(attrs: AttributeSet?, defStyle: Int) {
         Log.d("swithun-xxxx", "MyView - init")
+        // Load attributes
+        val a = context.obtainStyledAttributes(
+            attrs, R.styleable.ChildView, defStyle, 0
+        )
+        vmType = a.getEnum(R.styleable.ChildView_viewModel, VMType.CHILD1)
+
         b = MyViewBinding.inflate(LayoutInflater.from(context), this, true)
+
+        a.recycle()
     }
 
     override fun onAttachedToWindow() {
         Log.d("swithun-xxxx", "MyView - onAttachedToWindow")
         super.onAttachedToWindow()
         findViewTreeViewModelStoreOwner()?.let { safeVMSO ->
-            vm = ViewModelProvider(safeVMSO)[ChildViewModel::class.java]
+            vm = ViewModelProvider(safeVMSO)[when(vmType) {
+                VMType.CHILD1 -> ChildViewModel1::class.java
+                VMType.CHILD2 -> ChildViewModel2::class.java
+            }]
             shareVm = ViewModelProvider(safeVMSO)[ShareViewModel::class.java]
         }
         scope = findViewTreeLifecycleOwner()?.lifecycleScope
@@ -65,6 +81,7 @@ class ChildView : ConstraintLayout {
         b.shareStringChildBtn.setOnClickListener {
             shareVm?.changeText()
         }
+        R.styleable.ChildView_viewModel
     }
 
     private fun initObserve() {
@@ -82,3 +99,12 @@ class ChildView : ConstraintLayout {
     }
 
 }
+
+enum class VMType(val value: Int) {
+    CHILD1(0),
+    CHILD2(1);
+}
+
+inline fun <reified T : Enum<T>> TypedArray.getEnum(index: Int, default: T) =
+    getInt(index, -1).let { if (it >= 0) enumValues<T>()[it] else default
+    }

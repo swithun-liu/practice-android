@@ -1,0 +1,8 @@
+<resources>
+    <declare-styleable name="ChildView">
+        <attr name="viewModel" format="enum">
+            <enum name="childViewMode1" value="0"/>
+            <enum name="childViewMode2" value="1"/>
+        </attr>
+    </declare-styleable>
+</resources>
