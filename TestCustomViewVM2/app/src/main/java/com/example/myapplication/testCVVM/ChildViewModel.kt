@@ -79,3 +79,16 @@ class ChildViewModel2: ChildBaseViewMode<Int>() {
         }
     }
 }
+
+
+/**
+ * 需要给ChildView设置的初始化数据
+ * @param vmClass ChildViewModel的class
+ * @param initialData ViewModel基于此数据初始化，类型基于ChildViewModel子类声明的范型 InitialData
+ * @param notifier 当数据变化时ChildView可以给外部提供的通知
+ */
+class ChildViewDependency<ChildViewModel : ChildBaseViewMode<InitialData>, InitialData>(
+    val vmClass: Class<ChildViewModel>,
+    val initialData: InitialData,
+    val notifier: ChildViewDataChangeNotifier
+)

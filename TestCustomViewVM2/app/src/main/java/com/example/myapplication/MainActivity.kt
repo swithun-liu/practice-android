@@ -7,9 +7,10 @@ import androidx.activity.ComponentActivity
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.lifecycleScope
 import com.example.myapplication.databinding.ActivityMainBinding
-import com.example.myapplication.testCVVM.ChildViewDataObserver
+import com.example.myapplication.testCVVM.ChildViewDataChangeNotifier
 import com.example.myapplication.testCVVM.ChildViewModel1
 import com.example.myapplication.testCVVM.ChildViewModel2
+import com.example.myapplication.testCVVM.ChildViewDependency
 import com.example.myapplication.testCVVM.ParentViewModel
 import kotlinx.coroutines.launch
 
@@ -32,17 +33,28 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun initView() {
-        b.myView.setDependency(ChildViewModel1::class.java, "initialString", object : ChildViewDataObserver {
-            override fun onShareStringChanged(shareText: String) {
-                b.shareStringParent.text = shareText
-            }
-        })
 
-        b.myView.setDependency(ChildViewModel2::class.java, 1010101, object : ChildViewDataObserver {
-            override fun onShareStringChanged(shareText: String) {
-                b.shareStringParent.text = shareText
+        // 例1：对于场景1使用ChildViewModel1
+        b.myView.setDependency(ChildViewDependency(
+            ChildViewModel1::class.java,
+            "sdfsdfsdf",
+            object : ChildViewDataChangeNotifier {
+                override fun onShareStringChanged(shareText: String) {
+                    b.shareStringParent.text = shareText
+                }
             }
-        })
+        ))
+
+        // 例2：对于场景2使用ChildViewModel1
+        b.myView.setDependency(ChildViewDependency(
+            ChildViewModel2::class.java,
+            101010,
+            object : ChildViewDataChangeNotifier {
+                override fun onShareStringChanged(shareText: String) {
+                    b.shareStringParent.text = shareText
+                }
+            }
+        ))
     }
 
     private fun initClick() {

@@ -28,7 +28,7 @@ class ChildView<ChildViewModel: ChildBaseViewMode<InitialData>, InitialData> : C
 
     private var vmClass: Class<ChildViewModel>? = null
     private var initialData : InitialData? = null
-    private var outerObserver: ChildViewDataObserver? = null
+    private var notifier: ChildViewDataChangeNotifier? = null
 
 
     constructor(context: Context) : super(context) {
@@ -52,11 +52,10 @@ class ChildView<ChildViewModel: ChildBaseViewMode<InitialData>, InitialData> : C
         b = MyViewBinding.inflate(LayoutInflater.from(context), this, true)
     }
 
-    fun setDependency(java: Class<ChildViewModel>, initialData: InitialData, outerObserver: ChildViewDataObserver) {
-        Log.d("swithun-xxxx", "[setDependency] : $initialData")
-        this.vmClass = java
-        this.initialData = initialData
-        this.outerObserver = outerObserver
+    fun setDependency(cd: ChildViewDependency<ChildViewModel, InitialData>) {
+        this.vmClass = cd.vmClass
+        this.initialData = cd.initialData
+        this.notifier = cd.notifier
     }
 
     override fun onAttachedToWindow() {
@@ -102,7 +101,7 @@ class ChildView<ChildViewModel: ChildBaseViewMode<InitialData>, InitialData> : C
         scope?.launch {
             vm?.shareStringFLow?.collect {
                 b.shareStringChild.text = it
-                outerObserver?.onShareStringChanged(it)
+                notifier?.onShareStringChanged(it)
             }
         }
     }
@@ -115,6 +114,6 @@ inline fun <reified T : Enum<T>> TypedArray.getEnum(index: Int, default: T) =
     }
 
 
-interface ChildViewDataObserver  {
+interface ChildViewDataChangeNotifier  {
     fun onShareStringChanged(shareText: String)
 }
