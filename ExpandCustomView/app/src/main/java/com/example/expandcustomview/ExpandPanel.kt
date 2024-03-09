@@ -96,34 +96,44 @@ class ExpandPanel @JvmOverloads constructor(
         touchBar.setOnTouchListener(::handelTouchBarTouch)
         expandAnimation.addUpdateListener(::onAnimationUpdate)
         closeAnimation.addUpdateListener(::onAnimationUpdate)
-        closeAnimation.addListener(closeAnimatorListener)
+
         expandAnimation.addListener(expandAnimatorListener)
+        closeAnimation.addListener(closeAnimatorListener)
     }
 
     private fun handelTouchBarTouch(view: View, motionEvent: MotionEvent): Boolean {
         when (motionEvent.action) {
             MotionEvent.ACTION_DOWN -> {
+                // 记录 内容最开始的偏移量
                 virtualTranslationY = bg.translationY
+                // 记录位置
                 lastY = motionEvent.rawY
             }
 
             MotionEvent.ACTION_MOVE -> {
+                // 新位置
                 val newY = motionEvent.rawY
+                // 计算移动距离
                 val moveY = newY - lastY
 
+                // 记录同步偏移后的内容偏移量
                 virtualTranslationY += moveY
                 when {
+                    // 内容移动偏移量不能大于0，将其偏移量设置为0
                     virtualTranslationY > 0f -> bg.translationY = 0f
+                    // 内容移动偏移量不能小于(-高度)，将其偏移量设置为(-高度)
                     virtualTranslationY < -height.toFloat() -> bg.translationY =
                         -height.toFloat()
-
+                    // 其他情况合法
                     else -> bg.translationY = virtualTranslationY
                 }
+                // 记录位置
                 lastY = newY
             }
 
+            // 松手后自动动画
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                bg.translationY
+                // 当松手时不是完全展开，就关闭（0可调整为其他阈值，比如总高度*百分之多少）
                 if (bg.translationY < 0) {
                     close()
                 } else {
@@ -161,12 +171,18 @@ class ExpandPanel @JvmOverloads constructor(
     }
 
     fun expand() {
+        // 先停止所有动画
         closeAnimation.cancel()
         expandAnimation.cancel()
+        // 当前内容(包含拖拽条)的高度
         val height = bg.height.takeUnless { it == 0 } ?: return
+        // 当前展开占比
         val process = (height + bg.translationY) / height
+        // 设置动画 开始-结束
         expandAnimation.setFloatValues(process, 1f)
+        // 设置动画耗时
         expandAnimation.duration = ((1f - process) * animationTime).toLong()
+        // 启动动画
         expandAnimation.start()
     }
 
