@@ -38,15 +38,19 @@ class ChildNestedScrollView @JvmOverloads constructor(
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 // 停止fling
-                if (!mScroller.isFinished) {
-                    mScroller.abortAnimation()
-                    stopNestedScroll(ViewCompat.TYPE_NON_TOUCH)
+                run handleFling@{
+                    if (!mScroller.isFinished) {
+                        mScroller.abortAnimation()
+                        stopNestedScroll(ViewCompat.TYPE_NON_TOUCH)
+                    }
                 }
 
                 // 手动滚动处理
-                lastTouchY = touchY
-                activePointerId = event.getPointerId(0)
-                startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH)
+                run handleUserScroll@{
+                    lastTouchY = touchY
+                    activePointerId = event.getPointerId(0)
+                    startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH)
+                }
             }
 
             MotionEvent.ACTION_MOVE -> {
@@ -56,65 +60,72 @@ class ChildNestedScrollView @JvmOverloads constructor(
                 // 记录还能滚多少
                 var unconsumedMoveY = moveY
 
-                // [1] parent 滚吗
                 scrollConsumed[0] = 0
                 scrollConsumed[1] = 0
-                when (dispatchNestedPreScroll(
-                    0,
-                    moveY,
-                    scrollConsumed,
-                    scrollOffset,
-                    ViewCompat.TYPE_TOUCH
-                )) {
-                    // parent 滚
-                    true -> {
-                        Log.d(
-                            TAG,
-                            "[onTouchEvent]#[dispatchNestedPreScroll]#true $moveY ${scrollConsumed[1]}"
-                        )
-                        // 减去 parent消耗的
-                        unconsumedMoveY -= scrollConsumed[1]
-                    }
-                    // parent 不滚
-                    false -> {
-                        Log.d(
-                            TAG,
-                            "[onTouchEvent]#[dispatchNestedPreScroll]#false $moveY ${scrollConsumed[1]}"
-                        )
+
+                // [1] parent 滚吗
+                run parentScrollFirst@ {
+                    when (dispatchNestedPreScroll(
+                        0,
+                        moveY,
+                        scrollConsumed,
+                        scrollOffset,
+                        ViewCompat.TYPE_TOUCH
+                    )) {
+                        // parent 滚
+                        true -> {
+                            Log.d(
+                                TAG,
+                                "[onTouchEvent]#[dispatchNestedPreScroll]#true $moveY ${scrollConsumed[1]}"
+                            )
+                            // 减去 parent消耗的
+                            unconsumedMoveY -= scrollConsumed[1]
+                        }
+                        // parent 不滚
+                        false -> {
+                            Log.d(
+                                TAG,
+                                "[onTouchEvent]#[dispatchNestedPreScroll]#false $moveY ${scrollConsumed[1]}"
+                            )
+                        }
                     }
                 }
-
-                val parentConsumed = moveY - unconsumedMoveY
 
                 // [2] child 滚
-                if (unconsumedMoveY != 0) {
-                    val childScroll = unconsumedMoveY
-                    scrollBy(0, childScroll)
-                    Log.d(TAG, "[onTouchEvent]#[child scrollBy]#true $moveY $parentConsumed | $lastTouchY $touchY | $childScroll")
-                    lastTouchY = touchY
+                run childScrollNext@ {
+                    val parentConsumed = moveY - unconsumedMoveY
+
+                    if (unconsumedMoveY != 0) {
+                        val childScroll = unconsumedMoveY
+                        scrollBy(0, childScroll)
+                        Log.d(TAG, "[onTouchEvent]#[child scrollBy]#true $moveY $parentConsumed | $lastTouchY $touchY | $childScroll")
+                        lastTouchY = touchY
+                    }
                 }
 
-                // [3] child滚完了，如果剩下unconsumedMoveY，可以给parent滚
-                when (dispatchNestedScroll(
-                    0,
-                    moveY - unconsumedMoveY,
-                    0,
-                    unconsumedMoveY,
-                    scrollOffset,
-                    ViewCompat.TYPE_TOUCH,
-                )) {
-                    true -> {
-                        Log.d(
-                            TAG,
-                            "[onTouchEvent]#[dispatchNestedScroll]#true $scrollY $measuredHeight"
-                        )
-                    }
+                run parentScrollFinal@ {
+                    // [3] child滚完了，如果剩下unconsumedMoveY，可以给parent滚
+                    when (dispatchNestedScroll(
+                        0,
+                        moveY - unconsumedMoveY,
+                        0,
+                        unconsumedMoveY,
+                        scrollOffset,
+                        ViewCompat.TYPE_TOUCH,
+                    )) {
+                        true -> {
+                            Log.d(
+                                TAG,
+                                "[onTouchEvent]#[dispatchNestedScroll]#true $scrollY $measuredHeight"
+                            )
+                        }
 
-                    false -> {
-                        Log.d(
-                            TAG,
-                            "[onTouchEvent]#[dispatchNestedScroll]#false $scrollY $measuredHeight"
-                        )
+                        false -> {
+                            Log.d(
+                                TAG,
+                                "[onTouchEvent]#[dispatchNestedScroll]#false $scrollY $measuredHeight"
+                            )
+                        }
                     }
                 }
             }
@@ -127,9 +138,7 @@ class ChildNestedScrollView @JvmOverloads constructor(
                 velocityTracker.computeCurrentVelocity(1000, ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat())
                 val initialVelocity = velocityTracker.getYVelocity(activePointerId)
 
-//                dispatchNestedFling(0f, -initialVelocity, true)
                 fling(-initialVelocity)
-
 
                 activePointerId = INVALID_POINTER
             }
