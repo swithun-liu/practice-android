@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.swithun.learnestedscrolling.ParentNestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+            <View
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                android:background="#FFC107" />
+
+            <com.swithun.learnestedscrolling.ChildNestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="800dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:orientation="vertical"
+                    android:paddingHorizontal="100dp"
+                    android:layout_height="wrap_content">
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:background="#673AB7" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:background="#F44336" />
+
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:background="#009688" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:background="#8BC34A" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:background="#E91E63" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:background="#03A9F4" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:background="#6D654F" />
+                    <View
+                        android:layout_width="match_parent"
+                        android:layout_height="300dp"
+                        android:background="#07FF7F" />
+                </LinearLayout>
+
+            </com.swithun.learnestedscrolling.ChildNestedScrollView>
+
+        </LinearLayout>
+
+
+    </com.swithun.learnestedscrolling.ParentNestedScrollView>
+
+</androidx.constraintlayout.widget.ConstraintLayout>
