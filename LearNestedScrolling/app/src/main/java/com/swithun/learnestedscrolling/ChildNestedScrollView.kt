@@ -4,7 +4,9 @@ import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
+import android.view.VelocityTracker
 import android.widget.FrameLayout
+import android.widget.OverScroller
 import androidx.core.view.NestedScrollingChild3
 import androidx.core.view.NestedScrollingChildHelper
 import androidx.core.view.ViewCompat
@@ -20,11 +22,14 @@ class ChildNestedScrollView @JvmOverloads constructor(
     private val childHelper by lazy {
         NestedScrollingChildHelper(this).apply { isNestedScrollingEnabled = true }
     }
+    private var activePointerId = INVALID_POINTER
 
     // 第一个View
     private val firstView by lazy {
         children.first()
     }
+
+    private val mScroller = OverScroller(context)
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val touchY = event.y.toInt()
@@ -32,6 +37,7 @@ class ChildNestedScrollView @JvmOverloads constructor(
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 lastTouchY = touchY
+                activePointerId = event.getPointerId(0)
                 startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH)
             }
 
@@ -108,11 +114,54 @@ class ChildNestedScrollView @JvmOverloads constructor(
 
             MotionEvent.ACTION_CANCEL,
             MotionEvent.ACTION_UP -> {
+                Log.d(TAG, "fling up $activePointerId")
                 stopNestedScroll(ViewCompat.TYPE_TOUCH)
+                velocityTracker.computeCurrentVelocity(1000)
+                val initialVelocity = velocityTracker.getYVelocity(activePointerId)
+
+//                dispatchNestedFling(0f, -initialVelocity, true)
+                fling(-initialVelocity)
+
+
+                activePointerId = INVALID_POINTER
             }
 
+
         }
+        velocityTracker.addMovement(event)
         return true
+    }
+
+    private val velocityTracker = VelocityTracker.obtain()
+
+
+    private fun fling(fl: Float) {
+        Log.d(TAG, "fling $fl")
+        mScroller.fling(
+            scrollX, scrollY,
+            0, fl.toInt(),
+            0, 0,
+            Int.MIN_VALUE, Int.MAX_VALUE,
+            0, 0
+        )
+        scrollByScroller()
+    }
+
+    private fun scrollByScroller() {
+        postOnAnimation {
+            if (mScroller.computeScrollOffset()) {
+                Log.d(TAG, "[scrollByScroller]#[true] ${mScroller.currY}")
+                scrollTo(0, mScroller.currY)
+                scrollByScroller()
+            } else {
+
+                Log.d(TAG, "[scrollByScroller]#[false]")
+            }
+        }
+    }
+
+    override fun computeScroll() {
+        super.computeScroll()
     }
 
     override fun startNestedScroll(axes: Int, type: Int): Boolean {
@@ -188,6 +237,7 @@ class ChildNestedScrollView @JvmOverloads constructor(
 
     companion object {
         private const val TAG = "ChildNestedScrollView"
+        private const val INVALID_POINTER = -1
     }
 
 }
