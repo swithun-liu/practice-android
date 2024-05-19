@@ -37,6 +37,13 @@ class ChildNestedScrollView @JvmOverloads constructor(
 
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+                // 停止fling
+                if (!mScroller.isFinished) {
+                    mScroller.abortAnimation()
+                    stopNestedScroll(ViewCompat.TYPE_NON_TOUCH)
+                }
+
+                // 手动滚动处理
                 lastTouchY = touchY
                 activePointerId = event.getPointerId(0)
                 startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH)
