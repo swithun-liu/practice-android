@@ -210,10 +210,6 @@ class ChildNestedScrollView @JvmOverloads constructor(
         }
     }
 
-    override fun computeScroll() {
-        super.computeScroll()
-    }
-
     override fun startNestedScroll(axes: Int, type: Int): Boolean {
         Log.i(TAG, "child startNestedScroll axes:$axes type:$type ")
         return childHelper.startNestedScroll(axes, type)
@@ -277,11 +273,14 @@ class ChildNestedScrollView @JvmOverloads constructor(
     }
 
     override fun scrollTo(x: Int, y: Int) {
-        if (y >= 0 && y <= (firstView.height - height)) {
-            Log.d(TAG, "[scrollTo]#[true] $y ${firstView.height}")
-            super.scrollTo(x, y)
-        } else {
-            Log.d(TAG, "[scrollTo]#[false] $y ${firstView.height}")
+        val minY = 0
+        val maxY = firstView.height - height
+        when (val safeY = y.coerceIn(minY..maxY)) {
+            0 -> Log.d(TAG, "[scrollTo]#[false] $y  safeY${safeY} ${firstView.height}")
+            else -> {
+                Log.d(TAG, "[scrollTo]#[true] $y safeY${safeY} ${firstView.height}")
+                super.scrollTo(x, safeY)
+            }
         }
     }
 
