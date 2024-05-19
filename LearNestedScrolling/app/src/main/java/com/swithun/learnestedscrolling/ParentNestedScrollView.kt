@@ -31,12 +31,12 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     override fun onNestedScrollAccepted(child: View, target: View, axes: Int, type: Int) {
-        Log.i(TAG, "[onNestedScrollAccepted]")
+        Log.i(TAG, "[onNestedScrollAccepted] $type")
         parentHelper.onNestedScrollAccepted(child, target, axes, type)
     }
 
     override fun onStopNestedScroll(target: View, type: Int) {
-        Log.i(TAG, "[onStopNestedScroll]")
+        Log.i(TAG, "[onStopNestedScroll] $type")
         parentHelper.onStopNestedScroll(target, type)
     }
 
@@ -64,14 +64,20 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray, type: Int) {
-        val nextY = scrollY + dy
-        if (nextY >= 0 && nextY <= (firstView.height - height)) {
-            Log.i(TAG, "[onNestedPreScroll]#true ${scrollY} ${firstView.height}")
-            val parentPreScroll = dy / 2
-            consumed[1] = parentPreScroll
-            scrollBy(0, parentPreScroll)
-        } else {
-            Log.i(TAG, "[onNestedPreScroll]#false")
+
+        val parentWantToConsume = dy / 2
+        val nextY = scrollY + parentWantToConsume
+        val maxNextY = (firstView.height - height)
+        val minNextY = 0
+        val safeNextY = nextY.coerceIn(minNextY..maxNextY)
+
+        when (val safePrentWantToConsume = safeNextY - scrollY) {
+            0 -> Log.i(TAG, "[onNestedPreScroll]#false ($type)")
+            else -> {
+                Log.i(TAG, "[onNestedPreScroll]#true ($type) ${scrollY} ${firstView.height}")
+                consumed[1] = safePrentWantToConsume
+                scrollBy(0, safePrentWantToConsume)
+            }
         }
     }
 

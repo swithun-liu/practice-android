@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.VelocityTracker
+import android.view.ViewConfiguration
 import android.widget.FrameLayout
 import android.widget.OverScroller
 import androidx.core.view.NestedScrollingChild3
@@ -116,7 +117,7 @@ class ChildNestedScrollView @JvmOverloads constructor(
             MotionEvent.ACTION_UP -> {
                 Log.d(TAG, "fling up $activePointerId")
                 stopNestedScroll(ViewCompat.TYPE_TOUCH)
-                velocityTracker.computeCurrentVelocity(1000)
+                velocityTracker.computeCurrentVelocity(1000, ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat())
                 val initialVelocity = velocityTracker.getYVelocity(activePointerId)
 
 //                dispatchNestedFling(0f, -initialVelocity, true)
@@ -144,14 +145,63 @@ class ChildNestedScrollView @JvmOverloads constructor(
             Int.MIN_VALUE, Int.MAX_VALUE,
             0, 0
         )
+        startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_NON_TOUCH)
+        mScroller.computeScrollOffset()
+        rememberLastScrollerY = mScroller.currY
         scrollByScroller()
     }
 
+    private var rememberLastScrollerY = 0
+
     private fun scrollByScroller() {
         postOnAnimation {
+           if (mScroller.isFinished)  return@postOnAnimation
+
+            scrollConsumed[0] = 0
+            scrollConsumed[1] = 0
             if (mScroller.computeScrollOffset()) {
-                Log.d(TAG, "[scrollByScroller]#[true] ${mScroller.currY}")
-                scrollTo(0, mScroller.currY)
+                Log.d(TAG, "[scrollByScroller]#[true] ${mScroller.currY} $rememberLastScrollerY")
+//                scrollTo(0, mScroller.currY)
+
+                val moveY = mScroller.currY - rememberLastScrollerY
+                Log.d(TAG, "[scrollByScroller]#[true] ${mScroller.currY} $rememberLastScrollerY [$moveY]")
+                var unconsumedMoveY = moveY
+                when (dispatchNestedPreScroll(
+                    0,
+                    moveY,
+                    scrollConsumed,
+                    scrollOffset,
+                    ViewCompat.TYPE_NON_TOUCH
+                )) {
+                    // parent 滚
+                    true -> {
+                        Log.d(
+                            TAG,
+                            "[scrollByScroller]#[dispatchNestedPreScroll]#true $moveY ${scrollConsumed[1]}"
+                        )
+                        // 减去 parent消耗的
+                        unconsumedMoveY -= scrollConsumed[1]
+                    }
+                    // parent 不滚
+                    false -> {
+                        Log.d(
+                            TAG,
+                            "[scrollByScroller]#[dispatchNestedPreScroll]#false $moveY ${scrollConsumed[1]}"
+                        )
+                    }
+                }
+
+                val parentConsumed = moveY - unconsumedMoveY
+
+                // [2] child 滚
+                if (unconsumedMoveY != 0) {
+                    val childScroll = unconsumedMoveY
+                    scrollBy(0, childScroll)
+                    Log.d(TAG, "[onTouchEvent]#[child scrollBy]#true $moveY $parentConsumed| $childScroll")
+                }
+
+                rememberLastScrollerY = mScroller.currY
+
                 scrollByScroller()
             } else {
 
@@ -166,7 +216,7 @@ class ChildNestedScrollView @JvmOverloads constructor(
 
     override fun startNestedScroll(axes: Int, type: Int): Boolean {
         Log.i(TAG, "child startNestedScroll axes:$axes type:$type ")
-        return childHelper.startNestedScroll(axes)
+        return childHelper.startNestedScroll(axes, type)
     }
 
     override fun stopNestedScroll(type: Int) {
