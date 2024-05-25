@@ -133,13 +133,13 @@ class ChildNestedScrollView @JvmOverloads constructor(
 
             MotionEvent.ACTION_CANCEL,
             MotionEvent.ACTION_UP -> {
-                Log.d(TAG, "fling up $activePointerId")
+                // 停止滚动
                 stopNestedScroll(ViewCompat.TYPE_TOUCH)
+
+                // 开始fling
                 velocityTracker.computeCurrentVelocity(1000, ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat())
                 val initialVelocity = velocityTracker.getYVelocity(activePointerId)
-
                 fling(-initialVelocity)
-
                 activePointerId = INVALID_POINTER
             }
 
@@ -176,9 +176,6 @@ class ChildNestedScrollView @JvmOverloads constructor(
             scrollConsumed[0] = 0
             scrollConsumed[1] = 0
             if (mScroller.computeScrollOffset()) {
-                Log.d(TAG, "[scrollByScroller]#[true] ${mScroller.currY} $rememberLastScrollerY")
-//                scrollTo(0, mScroller.currY)
-
                 val moveY = mScroller.currY - rememberLastScrollerY
                 Log.d(TAG, "[scrollByScroller]#[true] ${mScroller.currY} $rememberLastScrollerY [$moveY]")
                 var unconsumedMoveY = moveY
