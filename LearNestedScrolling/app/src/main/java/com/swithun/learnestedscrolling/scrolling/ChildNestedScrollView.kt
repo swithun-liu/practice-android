@@ -1,4 +1,4 @@
-package com.swithun.learnestedscrolling
+package com.swithun.learnestedscrolling.scrolling
 
 import android.content.Context
 import android.util.AttributeSet
