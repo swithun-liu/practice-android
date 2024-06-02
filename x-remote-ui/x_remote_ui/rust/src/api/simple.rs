@@ -1,6 +1,14 @@
+
 #[flutter_rust_bridge::frb(sync)] // Synchronous mode for simplicity of the demo
 pub fn greet(name: String) -> String {
     format!("Hello, {name}!")
+}
+
+#[flutter_rust_bridge::frb(sync)] // Synchronous mode for simplicity of the demo
+pub fn init_smbconnect() -> Vec<String> {
+    let mut result: Vec<String> = Vec::new();
+
+    return result;
 }
 
 #[flutter_rust_bridge::frb(init)]

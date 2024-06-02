@@ -1,6 +1,0 @@
-2021-10-31 12:50:15,928 [   2530]   WARN - Container.ComponentManagerImpl - Do not use constructor injection (requestorClass=com.android.tools.idea.AndroidInitialConfigurator) 
-2021-10-31 12:50:18,459 [   5061]   WARN - tartup.impl.StartupManagerImpl - Activities registered via registerPostStartupActivity must be dumb-aware: com.android.tools.idea.stats.AndroidStudioUsageTracker$ProjectLifecycleTracker$projectComponentsInitialized$1@44fb2ffd 
-2021-10-31 12:50:23,509 [  10111]   WARN -            #com.android.ddmlib - * daemon not running; starting now at tcp:5037 
-2021-10-31 12:50:23,523 [  10125]   WARN -            #com.android.ddmlib - * daemon started successfully 
-2021-10-31 12:50:25,281 [  11883]   WARN - Container.ComponentManagerImpl - Do not use constructor injection (requestorClass=com.android.tools.idea.apk.ApkWritingAccessProvider) 
-2021-10-31 12:50:37,756 [  24358]   WARN -       GradleBuildOutputUtil.kt - Failed to read Json output file from /home/swithun/AndroidStudioProjects/AnimationTest/app/build/outputs/apk/debug/output-metadata.json. Build may have failed. 
