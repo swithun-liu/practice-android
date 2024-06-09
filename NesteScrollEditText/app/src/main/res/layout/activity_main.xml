@@ -7,13 +7,74 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <TextView
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+    <com.swithun.nestedscrolledittext.ParentNestedScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:orientation="vertical"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <View
+                android:background="#FFBFBF"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"/>
+
+            <View
+                android:background="#FFD5BF"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"/>
+
+            <View
+                android:background="#FFF1BF"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"/>
+
+            <View
+                android:background="#E9FFBF"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"/>
+
+            <View
+                android:background="#BFFFF0"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"/>
+
+            <View
+                android:background="#BFE3FF"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"/>
+
+            <com.swithun.nestedscrolledittext.NestedScrollEditText
+                android:id="@+id/editText"
+                android:layout_width="match_parent"
+                android:layout_height="300dp"
+                />
+
+            <View
+                android:background="#BFC2FF"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"/>
+
+            <View
+                android:background="#CDBFFF"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"/>
+
+            <androidx.appcompat.widget.AppCompatEditText
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:text="我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分JKIk"
+                />
+
+            <View
+                android:background="#EEBFFF"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"/>
+
+        </LinearLayout>
+
+    </com.swithun.nestedscrolledittext.ParentNestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
