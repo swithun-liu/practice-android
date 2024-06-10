@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.swithun.nestedscrolledittext.AsParentNestedScrollView
+    <com.swithun.nestedscrolledittext.nestedscroledittext.AsParentNestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -46,19 +46,13 @@
                 android:layout_width="match_parent"
                 android:layout_height="150dp"/>
 
-            <com.swithun.nestedscrolledittext.NestedScrollEditText
+            <com.swithun.nestedscrolledittext.nestedscroledittext.NestedScrollEditText
                 android:id="@+id/editText"
                 android:layout_width="match_parent"
-                android:layout_height="300dp"
-                />
+                android:layout_height="300dp" />
 
             <View
                 android:background="#BFC2FF"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"/>
-
-            <View
-                android:background="#CDBFFF"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"/>
 
@@ -69,12 +63,17 @@
                 />
 
             <View
+                android:background="#CDBFFF"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"/>
+
+            <View
                 android:background="#EEBFFF"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"/>
 
         </LinearLayout>
 
-    </com.swithun.nestedscrolledittext.AsParentNestedScrollView>
+    </com.swithun.nestedscrolledittext.nestedscroledittext.AsParentNestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
