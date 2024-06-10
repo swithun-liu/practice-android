@@ -1,10 +1,10 @@
-package com.swithun.nestedscrolledittext
+package com.swithun.nestedscrolledittext.nestedscroledittext
 
 import android.content.Context
 import android.graphics.Rect
 import android.util.AttributeSet
-import android.view.View
 import androidx.appcompat.widget.AppCompatEditText
+import com.swithun.nestedscrolledittext.nestedscroledittext.NestedScrollEditText
 
 class NestedScrollEditTextInner @JvmOverloads constructor(
     context: Context,

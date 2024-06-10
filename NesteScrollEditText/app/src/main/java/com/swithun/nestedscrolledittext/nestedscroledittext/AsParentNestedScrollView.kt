@@ -1,4 +1,4 @@
-package com.swithun.nestedscrolledittext
+package com.swithun.nestedscrolledittext.nestedscroledittext
 
 import android.content.Context
 import android.graphics.Rect
@@ -6,7 +6,7 @@ import android.util.AttributeSet
 import android.view.View
 import androidx.core.widget.NestedScrollView
 
-class ParentNestedScrollView @JvmOverloads constructor(
+class AsParentNestedScrollView @JvmOverloads constructor(
     context: Context,
     attrs: AttributeSet? = null,
     defStyleAttr: Int = 0

@@ -7,7 +7,7 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-    <com.swithun.nestedscrolledittext.ParentNestedScrollView
+    <com.swithun.nestedscrolledittext.AsParentNestedScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent">
 
@@ -75,6 +75,6 @@
 
         </LinearLayout>
 
-    </com.swithun.nestedscrolledittext.ParentNestedScrollView>
+    </com.swithun.nestedscrolledittext.AsParentNestedScrollView>
 
 </androidx.constraintlayout.widget.ConstraintLayout>

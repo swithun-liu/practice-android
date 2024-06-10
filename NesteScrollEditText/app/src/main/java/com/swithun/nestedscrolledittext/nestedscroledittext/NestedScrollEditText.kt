@@ -1,12 +1,8 @@
-package com.swithun.nestedscrolledittext
+package com.swithun.nestedscrolledittext.nestedscroledittext
 
 import android.content.Context
-import android.graphics.Rect
 import android.util.AttributeSet
-import android.util.Log
-import android.view.View
 import android.view.ViewGroup
-import android.widget.LinearLayout
 import androidx.core.widget.NestedScrollView
 
 class NestedScrollEditText @JvmOverloads constructor(
@@ -15,7 +11,7 @@ class NestedScrollEditText @JvmOverloads constructor(
     defStyleAttr: Int = 0
 ) : NestedScrollView(context, attrs, defStyleAttr) {
 
-    protected val editText:  NestedScrollEditTextInner = NestedScrollEditTextInner(context).also {
+    protected val editText: NestedScrollEditTextInner = NestedScrollEditTextInner(context).also {
         it.isFocusableInTouchMode = true
     }
 
