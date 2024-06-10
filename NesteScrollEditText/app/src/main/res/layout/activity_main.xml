@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
@@ -32,19 +31,15 @@
                 android:layout_height="150dp"/>
 
             <View
-                android:background="#E9FFBF"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"/>
-
-            <View
-                android:background="#BFFFF0"
-                android:layout_width="match_parent"
-                android:layout_height="150dp"/>
-
-            <View
                 android:background="#BFE3FF"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"/>
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NestedScrollEditText ⬇️"
+                />
 
             <com.swithun.nestedscrolledittext.nestedscroledittext.NestedScrollEditText
                 android:id="@+id/editText"
@@ -56,10 +51,16 @@
                 android:layout_width="match_parent"
                 android:layout_height="150dp"/>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="EditText ⬇️"
+                />
+
             <androidx.appcompat.widget.AppCompatEditText
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:text="我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分JKIk"
+                android:layout_height="200dp"
+                android:text="我我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分JKIk"
                 />
 
             <View
@@ -67,8 +68,36 @@
                 android:layout_width="match_parent"
                 android:layout_height="150dp"/>
 
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="NestedScrollView + EditText ⬇️"
+                />
+
+            <androidx.core.widget.NestedScrollView
+                android:layout_width="match_parent"
+                android:layout_height="200dp">
+
+                <androidx.appcompat.widget.AppCompatEditText
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:text="我我是第三个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分我是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分是第二个发大发到发送到发短发短发短发多少发多少发到发送到发多少发送到发多少发多少分JKIk"
+                    />
+
+            </androidx.core.widget.NestedScrollView>
+
             <View
                 android:background="#EEBFFF"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"/>
+
+            <View
+                android:background="#E9FFBF"
+                android:layout_width="match_parent"
+                android:layout_height="150dp"/>
+
+            <View
+                android:background="#BFFFF0"
                 android:layout_width="match_parent"
                 android:layout_height="150dp"/>
 
