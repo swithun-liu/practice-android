@@ -3,7 +3,7 @@ package com.swithun.mvi.ui.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.swithun.mvi.domain.ChangeData12UseCase
+import com.swithun.mvi.domain.ChangeData1AndData2UseCase
 import com.swithun.mvi.domain.ChangeData1UseCase
 import com.swithun.mvi.domain.ChangeData2UseCase
 import com.swithun.mvi.data.Data1Repository
@@ -60,7 +60,7 @@ class SwithunViewModel : ViewModel() {
 
     private fun handleClickABAction() {
         viewModelScope.launch {
-            ChangeData12UseCase(data1Repository, data2Repository).execute()
+            ChangeData1AndData2UseCase(data1Repository, data2Repository).execute()
                 .collect { (type, value) ->
                     when (type) {
                         "Data1" -> {
