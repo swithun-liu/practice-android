@@ -23,6 +23,10 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
     val openState: OpenState = OpenState.OPEN
 
+    private val state1Stroll = 0
+    private val state2Scroll
+        get() = getMaxScroll()
+
     private val parentHelper by lazy {
         NestedScrollingParentHelper(this)
     }
