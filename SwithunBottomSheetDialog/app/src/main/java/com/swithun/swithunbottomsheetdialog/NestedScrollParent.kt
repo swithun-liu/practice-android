@@ -56,6 +56,29 @@ class ParentNestedScrollView @JvmOverloads constructor(
         parentHelper.onStopNestedScroll(target, type)
     }
 
+    private var eatMove = false
+
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        when (ev?.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                eatMove = false
+            }
+            MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
+                if (scrollY != getMaxScroll() && // 嘴上
+                    scrollY != 0// 中间
+                    ) {
+                    if (Math.abs((scrollY - getMaxScroll())) > Math.abs((scrollY - 0))) {
+                        scrollTo(scrollX, 0)
+                    } else {
+                        eatMove = true
+                        scrollTo(scrollX, getMaxScroll())
+                    }
+                }
+            }
+        }
+        return super.dispatchTouchEvent(ev)
+    }
+
     override fun onNestedScroll(
         target: View,
         dxConsumed: Int,
@@ -104,7 +127,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray, @NestedScrollType type: Int) {
-        Log.i(TAG, "[onNestedPreScroll] 1- $dy [$scrollY]")
+        Log.i(TAG, "[onNestedPreScroll] 1- $dy [$scrollY] ||| ${System.currentTimeMillis()}")
         // dy 下 负数 上 正数
         // scrollY 上 正 下 负
 
@@ -115,6 +138,9 @@ class ParentNestedScrollView @JvmOverloads constructor(
                 if ((halfTop - scrollY) == 0 || firstView.height - scrollY <= height) {
                     // 到顶
                     doNestedPreScroll(parentWantToConsume, consumed, type)
+                    if (eatMove) {
+                        consumed[1] = dy
+                    }
                 } else { // 没到顶
                     when (type) {
                         ViewCompat.TYPE_NON_TOUCH -> {
@@ -135,7 +161,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
     private fun doNestedPreScroll(parentWantToConsume: Int, consumed: IntArray, @NestedScrollType type: Int) {
         val nextY = scrollY + parentWantToConsume
-        val maxNextY = Math.min(halfTop, firstView.height - height)
+        val maxNextY = getMaxScroll()
         val minNextY = 0
 
         val safeNextY = if (minNextY > maxNextY) {
@@ -164,7 +190,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     fun getMaxScroll(): Int {
-        return halfTop
+        return Math.min(halfTop, firstView.height - height)
     }
 
     enum class OpenState {

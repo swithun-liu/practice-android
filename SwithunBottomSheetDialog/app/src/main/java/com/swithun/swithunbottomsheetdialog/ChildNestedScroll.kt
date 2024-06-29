@@ -289,13 +289,17 @@ open class ChildNestedScrollView @JvmOverloads constructor(
         val minY = 0
         val maxY = firstView.height - height
         when (val safeY = y.coerceIn(minY..maxY)) {
-            0 -> Log.d(TAG, "[scrollTo]#[false] $y  safeY${safeY} ${firstView.height}")
+            0 -> {
+                Log.d(TAG, "[scrollTo]#[false] $y  safeY${safeY} ${firstView.height}")
+                super.scrollTo(x, safeY)
+            }
             else -> {
                 Log.d(TAG, "[scrollTo]#[true] $y safeY${safeY} ${firstView.height}")
                 super.scrollTo(x, safeY)
             }
         }
     }
+
 
     companion object {
         private const val TAG = "ChildNestedScrollView"
