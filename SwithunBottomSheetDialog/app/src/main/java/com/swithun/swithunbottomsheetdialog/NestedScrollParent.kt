@@ -79,7 +79,15 @@ class ParentNestedScrollView @JvmOverloads constructor(
                 }
             }
         } else { // 没到顶
-            doNestedPreScroll(dyUnconsumed, consumed, type)
+            when (type) {
+
+                ViewCompat.TYPE_NON_TOUCH -> {
+                }
+
+                ViewCompat.TYPE_TOUCH -> {
+                    doNestedPreScroll(dyUnconsumed, consumed, type)
+                }
+            }
         }
 
     }
