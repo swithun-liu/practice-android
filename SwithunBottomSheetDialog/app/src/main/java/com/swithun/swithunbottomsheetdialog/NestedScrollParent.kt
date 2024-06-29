@@ -135,7 +135,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
     private fun doNestedPreScroll(parentWantToConsume: Int, consumed: IntArray, @NestedScrollType type: Int) {
         val nextY = scrollY + parentWantToConsume
-        val maxNextY = (firstView.height - height)
+        val maxNextY = Math.min(halfTop, firstView.height - height)
         val minNextY = 0
 
         val safeNextY = if (minNextY > maxNextY) {
@@ -161,6 +161,10 @@ class ParentNestedScrollView @JvmOverloads constructor(
         } else {
             Log.d(TAG, "[scrollTo]#[false] $y ${firstView.height}")
         }
+    }
+
+    fun getMaxScroll(): Int {
+        return halfTop
     }
 
     enum class OpenState {
