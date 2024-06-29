@@ -16,18 +16,30 @@ import androidx.core.view.ViewCompat
 import androidx.core.view.ViewCompat.NestedScrollType
 import androidx.core.view.children
 import androidx.customview.widget.ViewDragHelper.INVALID_POINTER
+import kotlin.math.abs
 
 class ParentNestedScrollView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ChildNestedScrollView(context, attrs, defStyleAttr), NestedScrollingParent3 {
 
-    val openState: OpenState = OpenState.OPEN
+    val openState: OpenState
+        get() {
+            return when {
+                scrollY > state2Scroll -> OpenState.STATE2
+                scrollY == state2Scroll -> OpenState.STATE2
+                scrollY > state1Scroll -> OpenState.STATE2_1
+                scrollY == state1Scroll -> OpenState.STATE1
+                scrollY > state0Scroll -> OpenState.STATE1_0
+                scrollY == state0Scroll -> OpenState.STATE0
+                else -> OpenState.STATE0
+            }
+        }
 
     // scroll下负
     private val state0Scroll
         get() = -firstView.height
 
-    private val state1Stroll = 0
+    private val state1Scroll = 0
 
     // scroll上正
     private val state2Scroll
@@ -46,12 +58,13 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     private val halfTop = 1000
+    private var animateValue = AnimateValue(
+        0, 0
+    )
 
 
     private val overshootInterpolatorAnimator = ValueAnimator()
     private val overshootInterpolator = OvershootInterpolator()
-    private var animateScrollY = 0
-    private var isDown = false
     private var activePointerId = INVALID_POINTER
 
     init {
@@ -61,15 +74,11 @@ class ParentNestedScrollView @JvmOverloads constructor(
         }
         overshootInterpolatorAnimator.addUpdateListener {
             val process = (it.animatedValue as Float)
-            val f = overshootInterpolator.getInterpolation(process)
-            val finalScrollY = if (isDown) {
-                val passed = animateScrollY * f
-                animateScrollY - passed
-            } else {
-                val passed = (state2Scroll- animateScrollY) * f
-                animateScrollY + passed
-            }
-            this.scrollTo(scrollX, finalScrollY.toInt())
+            val overshootProcess = overshootInterpolator.getInterpolation(process)
+            val passed = (animateValue.endY - animateValue.startY) * overshootProcess
+            val newScrollY = animateValue.startY + passed
+            Log.d(TAG, "[Fling Animate] $process $overshootProcess | ${animateValue.endY}, ${animateValue.startY} | $passed $newScrollY")
+            this.scrollTo(scrollX, newScrollY.toInt())
         }
     }
 
@@ -102,33 +111,41 @@ class ParentNestedScrollView @JvmOverloads constructor(
                 overshootInterpolatorAnimator.cancel()
                 activePointerId = ev.getPointerId(0)
             }
+
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                if (scrollY != state2Scroll && // 嘴上
-                    scrollY != 0// 中间
-                    ) {
+                when (openState) {
+                    OpenState.STATE2, OpenState.STATE1, OpenState.STATE0 -> { }
+                    OpenState.STATE2_1, OpenState.STATE1_0 -> {
+                        // 下正
+                        velocityTracker.computeCurrentVelocity(
+                            1000,
+                            ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat()
+                        )
+                        val initialVelocity: Float = velocityTracker.getYVelocity(activePointerId)
+                        Log.d(TAG, "[dispatchTouchEvent] $initialVelocity")
 
-                    // 下正
-                    velocityTracker.computeCurrentVelocity(1000, ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat())
-                    val initialVelocity: Float = velocityTracker.getYVelocity(activePointerId)
-                    Log.d(TAG, "[dispatchTouchEvent] $initialVelocity")
-
-                    if (initialVelocity > 0f) {
-                        test(scrollY, true)
-                    } else if (initialVelocity < 0f) {
-                        eatMove = true
-                        test(scrollY, false)
-                    } else {
-                        if (Math.abs((scrollY - state2Scroll)) > Math.abs((scrollY - 0))) {
+                        if (initialVelocity > 0f) {
                             test(scrollY, true)
-                        } else {
+                        } else if (initialVelocity < 0f) {
                             eatMove = true
                             test(scrollY, false)
+                        } else {
+                            when (openState) {
+                                OpenState.STATE2_1 -> {
+                                    if (abs(scrollY - state2Scroll) > abs(scrollY - state1Scroll))                                     {
+                                        test(scrollY, true)
+                                    } else {
+                                        test(scrollY, false)
+                                    }
+                                }
+                                OpenState.STATE1_0 -> {}
+                                else -> {}
+                            }
                         }
                     }
-
-
-                    activePointerId = INVALID_POINTER
                 }
+
+                activePointerId = INVALID_POINTER
             }
         }
         velocityTracker.addMovement(ev)
@@ -136,17 +153,19 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     private fun test(scrollY: Int, isDown: Boolean) {
+        val animateY = when (openState) {
+            OpenState.STATE2 -> null
+            OpenState.STATE2_1 -> if (isDown) state1Scroll else state2Scroll
+            OpenState.STATE1 -> null
+            OpenState.STATE1_0 -> if (isDown) state0Scroll else state1Scroll
+            OpenState.STATE0 -> null
+        } ?: return
         isAnimating = true
-        this.isDown = isDown
-        overshootInterpolatorAnimator.cancel()
 
+        setAnimatedValue { AnimateValue(scrollY, animateY) }
+        overshootInterpolatorAnimator.cancel()
         overshootInterpolatorAnimator.duration = 400
-        animateScrollY = scrollY
-        if (isDown) {
-            overshootInterpolatorAnimator.setFloatValues(0f, 1f)
-        } else {
-            overshootInterpolatorAnimator.setFloatValues(0f, 1f)
-        }
+        overshootInterpolatorAnimator.setFloatValues(0f, 1f)
         overshootInterpolatorAnimator.start()
     }
 
@@ -197,7 +216,13 @@ class ParentNestedScrollView @JvmOverloads constructor(
         Log.i(TAG, "[onNestedScroll]2")
     }
 
-    override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray, @NestedScrollType type: Int) {
+    override fun onNestedPreScroll(
+        target: View,
+        dx: Int,
+        dy: Int,
+        consumed: IntArray,
+        @NestedScrollType type: Int
+    ) {
         Log.i(TAG, "[onNestedPreScroll] 1- $dy [$scrollY] ||| ${System.currentTimeMillis()}")
         // dy 下 负数 上 正数
         // scrollY 上 正 下 负
@@ -226,11 +251,15 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
             }
             // 下
-            else -> { }
+            else -> {}
         }
     }
 
-    private fun doNestedPreScroll(parentWantToConsume: Int, consumed: IntArray, @NestedScrollType type: Int) {
+    private fun doNestedPreScroll(
+        parentWantToConsume: Int,
+        consumed: IntArray,
+        @NestedScrollType type: Int
+    ) {
         val nextY = scrollY + parentWantToConsume
         val maxNextY = state2Scroll
         val minNextY = 0
@@ -270,10 +299,21 @@ class ParentNestedScrollView @JvmOverloads constructor(
         return Math.min(halfTop, firstView.height - height)
     }
 
+    data class AnimateValue(
+        var startY: Int,
+        var endY: Int,
+    )
+
+    private fun setAnimatedValue(reducer: AnimateValue.() -> AnimateValue) {
+        this.animateValue = reducer(this.animateValue)
+    }
+
     enum class OpenState {
-        OPEN,
-        HALF_OPEN,
-        CLOSE
+        STATE2,
+        STATE2_1,
+        STATE1,
+        STATE1_0,
+        STATE0
     }
 
     companion object {
