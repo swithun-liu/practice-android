@@ -5,6 +5,7 @@ import android.util.AttributeSet
 import android.util.Log
 import android.view.View
 import android.widget.FrameLayout
+import android.widget.LinearLayout
 import androidx.core.view.NestedScrollingParent3
 import androidx.core.view.NestedScrollingParentHelper
 import androidx.core.view.ViewCompat
@@ -24,6 +25,15 @@ class ParentNestedScrollView @JvmOverloads constructor(
     // 第一个View
     private val firstView by lazy {
         children.first()
+    }
+
+    private val halfTop = 1000
+
+    init {
+        this.post {
+            val view = (firstView as LinearLayout)
+            view.setPadding(0, halfTop, 0, 0)
+        }
     }
 
     override fun onStartNestedScroll(child: View, target: View, axes: Int, type: Int): Boolean {
@@ -51,11 +61,26 @@ class ParentNestedScrollView @JvmOverloads constructor(
         dyConsumed: Int,
         dxUnconsumed: Int,
         dyUnconsumed: Int,
+        @NestedScrollType
         type: Int,
         consumed: IntArray
     ) {
         Log.i(TAG, "[onNestedScroll] $dyUnconsumed")
-        doNestedPreScroll(dyUnconsumed, consumed, type)
+        if ((halfTop - scrollY) == 0 || firstView.height - scrollY <= height) {
+            // 到顶
+            when (type) {
+
+                ViewCompat.TYPE_NON_TOUCH -> {
+                }
+
+                ViewCompat.TYPE_TOUCH -> {
+                    doNestedPreScroll(dyUnconsumed, consumed, type)
+                }
+            }
+        } else { // 没到顶
+            doNestedPreScroll(dyUnconsumed, consumed, type)
+        }
+
     }
 
     override fun onNestedScroll(
@@ -69,23 +94,46 @@ class ParentNestedScrollView @JvmOverloads constructor(
         Log.i(TAG, "[onNestedScroll]2")
     }
 
-    override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray, type: Int) {
-        Log.i(TAG, "[onNestedPreScroll] 1- $dy")
-        // 下 负数 上 正数
+    override fun onNestedPreScroll(target: View, dx: Int, dy: Int, consumed: IntArray, @NestedScrollType type: Int) {
+        Log.i(TAG, "[onNestedPreScroll] 1- $dy [$scrollY]")
+        // dy 下 负数 上 正数
+        // scrollY 上 正 下 负
 
-        val parentWantToConsume = when {
-            dy >= 0 -> dy
-            else -> 0
+        when {
+            // 上
+            dy >= 0 -> {
+                val parentWantToConsume = dy
+                if ((halfTop - scrollY) == 0 || firstView.height - scrollY <= height) {
+                    // 到顶
+                    doNestedPreScroll(parentWantToConsume, consumed, type)
+                } else { // 没到顶
+                    when (type) {
+                        ViewCompat.TYPE_NON_TOUCH -> {
+                            consumed[1] = parentWantToConsume
+                        }
+
+                        ViewCompat.TYPE_TOUCH -> {
+                            doNestedPreScroll(parentWantToConsume, consumed, type)
+                        }
+                    }
+                }
+
+            }
+            // 下
+            else -> { }
         }
-
-        doNestedPreScroll(parentWantToConsume, consumed, type)
     }
 
     private fun doNestedPreScroll(parentWantToConsume: Int, consumed: IntArray, @NestedScrollType type: Int) {
         val nextY = scrollY + parentWantToConsume
         val maxNextY = (firstView.height - height)
         val minNextY = 0
-        val safeNextY = nextY.coerceIn(minNextY..maxNextY)
+
+        val safeNextY = if (minNextY > maxNextY) {
+            0
+        } else {
+            nextY.coerceIn(minNextY..maxNextY)
+        }
 
         when (val safePrentWantToConsume = safeNextY - scrollY) {
             0 -> Log.i(TAG, "[onNestedPreScroll]#false ($type)")

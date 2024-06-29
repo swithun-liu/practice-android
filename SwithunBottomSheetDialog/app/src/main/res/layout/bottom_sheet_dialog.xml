@@ -10,13 +10,8 @@
         android:layout_height="wrap_content"
         android:background="#00000000"
         android:orientation="vertical"
+        android:paddingTop="300dp"
         >
-
-        <View
-            android:background="#F44336"
-            android:layout_width="30dp"
-            android:layout_gravity="center"
-            android:layout_height="300dp"/>
 
         <androidx.core.widget.NestedScrollView
             android:layout_width="wrap_content"
@@ -27,6 +22,28 @@
                 android:layout_height="wrap_content"
                 android:orientation="vertical"
                 >
+
+                <View
+                    android:background="#F44336"
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"/>
+
+                <View
+                    android:background="#E91E63"
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"/>
+                <View
+                    android:background="#9C27B0"
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"/>
+                <View
+                    android:background="#3F51B5"
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"/>
+                <View
+                    android:background="#2196F3"
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"/>
 
                 <View
                     android:background="#F44336"
