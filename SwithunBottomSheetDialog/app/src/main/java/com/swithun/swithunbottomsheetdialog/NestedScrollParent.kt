@@ -23,9 +23,16 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
     val openState: OpenState = OpenState.OPEN
 
+    // scroll下负
+    private val state0Scroll
+        get() = -firstView.height
+
     private val state1Stroll = 0
+
+    // scroll上正
     private val state2Scroll
         get() = getMaxScroll()
+
 
     private val parentHelper by lazy {
         NestedScrollingParentHelper(this)
@@ -59,7 +66,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
                 val passed = animateScrollY * f
                 animateScrollY - passed
             } else {
-                val passed = (getMaxScroll() - animateScrollY) * f
+                val passed = (state2Scroll- animateScrollY) * f
                 animateScrollY + passed
             }
             this.scrollTo(scrollX, finalScrollY.toInt())
@@ -96,7 +103,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
                 activePointerId = ev.getPointerId(0)
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                if (scrollY != getMaxScroll() && // 嘴上
+                if (scrollY != state2Scroll && // 嘴上
                     scrollY != 0// 中间
                     ) {
 
@@ -111,7 +118,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
                         eatMove = true
                         test(scrollY, false)
                     } else {
-                        if (Math.abs((scrollY - getMaxScroll())) > Math.abs((scrollY - 0))) {
+                        if (Math.abs((scrollY - state2Scroll)) > Math.abs((scrollY - 0))) {
                             test(scrollY, true)
                         } else {
                             eatMove = true
@@ -225,7 +232,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
     private fun doNestedPreScroll(parentWantToConsume: Int, consumed: IntArray, @NestedScrollType type: Int) {
         val nextY = scrollY + parentWantToConsume
-        val maxNextY = getMaxScroll()
+        val maxNextY = state2Scroll
         val minNextY = 0
 
         val safeNextY = if (minNextY > maxNextY) {
