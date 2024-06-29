@@ -6,7 +6,6 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.ViewConfiguration
-import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.OverScroller
 import androidx.core.view.NestedScrollingChild3
@@ -31,8 +30,10 @@ open class ChildNestedScrollView @JvmOverloads constructor(
         children.first()
     }
 
-    private val mScroller = OverScroller(context)
-    protected var isAnimating = false
+    protected val mScroller = OverScroller(context)
+    private var isFling = false
+    protected val safeIsFling: Boolean
+        get() = isFling && !mScroller.isFinished
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val touchY = event.y.toInt()
@@ -41,10 +42,7 @@ open class ChildNestedScrollView @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 // 停止fling
                 run handleFling@{
-                    if (!mScroller.isFinished) {
-                        mScroller.abortAnimation()
-                        stopNestedScroll(ViewCompat.TYPE_NON_TOUCH)
-                    }
+                    stopFling()
                 }
 
                 // 手动滚动处理
@@ -154,8 +152,17 @@ open class ChildNestedScrollView @JvmOverloads constructor(
     private val velocityTracker = VelocityTracker.obtain()
 
 
-    private fun fling(fl: Float) {
+    fun stopFling() {
+        isFling = false
+        if (!mScroller.isFinished) {
+            mScroller.abortAnimation()
+            stopNestedScroll(ViewCompat.TYPE_NON_TOUCH)
+        }
+    }
+
+    protected open fun fling(fl: Float) {
         Log.d(TAG, "fling $fl")
+        isFling = true
         mScroller.fling(
             scrollX, scrollY,
             0, fl.toInt(),
@@ -288,12 +295,6 @@ open class ChildNestedScrollView @JvmOverloads constructor(
     }
 
     override fun scrollTo(x: Int, y: Int) {
-        if (isAnimating) {
-            super.scrollTo(x, y)
-            return
-        }
-
-
         val minY = 0
         val maxY = firstView.height - height
         when (val safeY = y.coerceIn(minY..maxY)) {
@@ -306,6 +307,10 @@ open class ChildNestedScrollView @JvmOverloads constructor(
                 super.scrollTo(x, safeY)
             }
         }
+    }
+
+    protected fun originalScrollTo(x: Int, y: Int) {
+        super.scrollTo(x, y)
     }
 
 

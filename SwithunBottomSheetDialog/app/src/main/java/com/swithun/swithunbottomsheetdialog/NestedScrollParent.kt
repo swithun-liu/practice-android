@@ -22,6 +22,14 @@ class ParentNestedScrollView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ChildNestedScrollView(context, attrs, defStyleAttr), NestedScrollingParent3 {
 
+    protected var isAnimating = false
+
+    override fun fling(fl: Float) {
+        if (!isAnimating) {
+           super.fling(fl)
+        }
+    }
+
     val openState: OpenState
         get() {
             return when {
@@ -37,7 +45,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
     // scroll下负
     private val state0Scroll
-        get() = -firstView.height
+        get() = -(height - state2Scroll) + 200
 
     private val state1Scroll = 0
 
@@ -64,7 +72,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
 
     private val overshootInterpolatorAnimator = ValueAnimator()
-    private val overshootInterpolator = OvershootInterpolator()
+    private val overshootInterpolator = OvershootInterpolator(1f)
     private var activePointerId = INVALID_POINTER
 
     init {
@@ -135,10 +143,18 @@ class ParentNestedScrollView @JvmOverloads constructor(
                                     if (abs(scrollY - state2Scroll) > abs(scrollY - state1Scroll))                                     {
                                         test(scrollY, true)
                                     } else {
+                                        eatMove = true
                                         test(scrollY, false)
                                     }
                                 }
-                                OpenState.STATE1_0 -> {}
+                                OpenState.STATE1_0 -> {
+                                    if (abs(scrollY - state1Scroll) > abs(scrollY - state0Scroll))                                     {
+                                        test(scrollY, true)
+                                    } else {
+                                        eatMove = true
+                                        test(scrollY, false)
+                                    }
+                                }
                                 else -> {}
                             }
                         }
@@ -152,15 +168,18 @@ class ParentNestedScrollView @JvmOverloads constructor(
         return super.dispatchTouchEvent(ev)
     }
 
+
     private fun test(scrollY: Int, isDown: Boolean) {
         val animateY = when (openState) {
-            OpenState.STATE2 -> null
+            OpenState.STATE2 -> state2Scroll
             OpenState.STATE2_1 -> if (isDown) state1Scroll else state2Scroll
             OpenState.STATE1 -> null
             OpenState.STATE1_0 -> if (isDown) state0Scroll else state1Scroll
             OpenState.STATE0 -> null
         } ?: return
         isAnimating = true
+        mScroller.abortAnimation()
+        stopNestedScroll(ViewCompat.TYPE_NON_TOUCH)
 
         setAnimatedValue { AnimateValue(scrollY, animateY) }
         overshootInterpolatorAnimator.cancel()
@@ -202,7 +221,15 @@ class ParentNestedScrollView @JvmOverloads constructor(
                 }
             }
         }
+    }
 
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        Log.d(TAG, "[dispatchTouchEvent] position ${event?.y}")
+        if (event != null && event.y + scrollY < state2Scroll) {
+            return true
+        }
+
+        return super.onTouchEvent(event)
     }
 
     override fun onNestedScroll(
@@ -262,7 +289,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
     ) {
         val nextY = scrollY + parentWantToConsume
         val maxNextY = state2Scroll
-        val minNextY = 0
+        val minNextY = state0Scroll
 
         val safeNextY = if (minNextY > maxNextY) {
             0
@@ -282,14 +309,26 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
     override fun scrollTo(x: Int, y: Int) {
         if (isAnimating) {
-            super.scrollTo(x, y)
+            originalScrollTo(x, y)
             return
         }
 
+        if (safeIsFling) {
+            when (openState) {
+                OpenState.STATE2 -> {
+                    if (y <= state2Scroll) {
+                        stopFling()
+                        test(scrollY, true)
+                        return
+                    }
+                }
+                else -> { }
+            }
+        }
 
-        if (y >= 0 && y <= (firstView.height - height)) {
+        if (y >= state0Scroll && y <= (firstView.height - height)) {
             Log.d(TAG, "[scrollTo]#[true] $y ${firstView.height}")
-            super.scrollTo(x, y)
+            originalScrollTo(x, y)
         } else {
             Log.d(TAG, "[scrollTo]#[false] $y ${firstView.height}")
         }
