@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.ViewConfiguration
+import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.OverScroller
 import androidx.core.view.NestedScrollingChild3
@@ -31,6 +32,7 @@ open class ChildNestedScrollView @JvmOverloads constructor(
     }
 
     private val mScroller = OverScroller(context)
+    protected var isAnimating = false
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val touchY = event.y.toInt()
@@ -286,6 +288,12 @@ open class ChildNestedScrollView @JvmOverloads constructor(
     }
 
     override fun scrollTo(x: Int, y: Int) {
+        if (isAnimating) {
+            super.scrollTo(x, y)
+            return
+        }
+
+
         val minY = 0
         val maxY = firstView.height - height
         when (val safeY = y.coerceIn(minY..maxY)) {

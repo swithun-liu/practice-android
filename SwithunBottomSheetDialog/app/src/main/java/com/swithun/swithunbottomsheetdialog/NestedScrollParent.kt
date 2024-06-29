@@ -1,17 +1,21 @@
 package com.swithun.swithunbottomsheetdialog
 
+import android.animation.ValueAnimator
 import android.content.Context
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
+import android.view.VelocityTracker
 import android.view.View
-import android.widget.FrameLayout
+import android.view.ViewConfiguration
+import android.view.animation.OvershootInterpolator
 import android.widget.LinearLayout
 import androidx.core.view.NestedScrollingParent3
 import androidx.core.view.NestedScrollingParentHelper
 import androidx.core.view.ViewCompat
 import androidx.core.view.ViewCompat.NestedScrollType
 import androidx.core.view.children
+import androidx.customview.widget.ViewDragHelper.INVALID_POINTER
 
 class ParentNestedScrollView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
@@ -23,6 +27,8 @@ class ParentNestedScrollView @JvmOverloads constructor(
         NestedScrollingParentHelper(this)
     }
 
+    private val velocityTracker = VelocityTracker.obtain()
+
     // 第一个View
     private val firstView by lazy {
         children.first()
@@ -30,10 +36,29 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
     private val halfTop = 1000
 
+
+    private val overshootInterpolatorAnimator = ValueAnimator()
+    private val overshootInterpolator = OvershootInterpolator()
+    private var animateScrollY = 0
+    private var isDown = false
+    private var activePointerId = INVALID_POINTER
+
     init {
         this.post {
             val view = (firstView as LinearLayout)
             view.setPadding(0, halfTop, 0, 0)
+        }
+        overshootInterpolatorAnimator.addUpdateListener {
+            val process = (it.animatedValue as Float)
+            val f = overshootInterpolator.getInterpolation(process)
+            val finalScrollY = if (isDown) {
+                val passed = animateScrollY * f
+                animateScrollY - passed
+            } else {
+                val passed = (getMaxScroll() - animateScrollY) * f
+                animateScrollY + passed
+            }
+            this.scrollTo(scrollX, finalScrollY.toInt())
         }
     }
 
@@ -62,21 +87,56 @@ class ParentNestedScrollView @JvmOverloads constructor(
         when (ev?.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 eatMove = false
+                isAnimating = false
+                overshootInterpolatorAnimator.cancel()
+                activePointerId = ev.getPointerId(0)
             }
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
                 if (scrollY != getMaxScroll() && // 嘴上
                     scrollY != 0// 中间
                     ) {
-                    if (Math.abs((scrollY - getMaxScroll())) > Math.abs((scrollY - 0))) {
-                        scrollTo(scrollX, 0)
-                    } else {
+
+                    // 下正
+                    velocityTracker.computeCurrentVelocity(1000, ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat())
+                    val initialVelocity: Float = velocityTracker.getYVelocity(activePointerId)
+                    Log.d(TAG, "[dispatchTouchEvent] $initialVelocity")
+
+                    if (initialVelocity > 0f) {
+                        test(scrollY, true)
+                    } else if (initialVelocity < 0f) {
                         eatMove = true
-                        scrollTo(scrollX, getMaxScroll())
+                        test(scrollY, false)
+                    } else {
+                        if (Math.abs((scrollY - getMaxScroll())) > Math.abs((scrollY - 0))) {
+                            test(scrollY, true)
+                        } else {
+                            eatMove = true
+                            test(scrollY, false)
+                        }
                     }
+
+
+                    activePointerId = INVALID_POINTER
                 }
             }
         }
+        velocityTracker.addMovement(ev)
         return super.dispatchTouchEvent(ev)
+    }
+
+    private fun test(scrollY: Int, isDown: Boolean) {
+        isAnimating = true
+        this.isDown = isDown
+        overshootInterpolatorAnimator.cancel()
+
+        overshootInterpolatorAnimator.duration = 400
+        animateScrollY = scrollY
+        if (isDown) {
+            overshootInterpolatorAnimator.setFloatValues(0f, 1f)
+        } else {
+            overshootInterpolatorAnimator.setFloatValues(0f, 1f)
+        }
+        overshootInterpolatorAnimator.start()
     }
 
     override fun onNestedScroll(
@@ -181,6 +241,12 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     override fun scrollTo(x: Int, y: Int) {
+        if (isAnimating) {
+            super.scrollTo(x, y)
+            return
+        }
+
+
         if (y >= 0 && y <= (firstView.height - height)) {
             Log.d(TAG, "[scrollTo]#[true] $y ${firstView.height}")
             super.scrollTo(x, y)
