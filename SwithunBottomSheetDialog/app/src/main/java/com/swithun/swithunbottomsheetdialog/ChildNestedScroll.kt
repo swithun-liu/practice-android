@@ -57,7 +57,7 @@ open class ChildNestedScrollView @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 scrollCauser = ScrollCauser.NONE
 
-                Log.d(TAG, "on ACTION_MOVE $lastTouchY $touchY")
+                Log.d(TAG, "[onTouchEvent] on ACTION_MOVE $lastTouchY $touchY")
 
                 scrollCauser = ScrollCauser.USER_TOUCH
                 // 要滚多少
@@ -105,7 +105,7 @@ open class ChildNestedScrollView @JvmOverloads constructor(
                         scrollBy(0, childScroll)
                         Log.d(
                             TAG,
-                            "[onTouchEvent]#[child scrollBy]#true $moveY $parentConsumed | $lastTouchY $touchY | $childScroll"
+                            "[onTouchEvent]#[child scrollBy]#true $moveY $parentConsumed | $lastTouchY $touchY | $childScroll -- $scrollY"
                         )
                         lastTouchY = touchY
                     }

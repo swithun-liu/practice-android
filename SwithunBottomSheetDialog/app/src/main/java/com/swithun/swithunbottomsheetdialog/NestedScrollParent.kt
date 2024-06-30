@@ -84,6 +84,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
             val overshootProcess = overshootInterpolator.getInterpolation(process)
             val passed = (animateValue.endY - animateValue.startY) * overshootProcess
             val newScrollY = animateValue.startY + passed
+            Log.d(TAG, "[AUTO_SETTLE_ANIM] listener $process | $newScrollY")
             Log.d(
                 TAG,
                 "[Fling Animate] $process $overshootProcess | ${animateValue.endY}, ${animateValue.startY} | $passed $newScrollY"
@@ -114,14 +115,13 @@ class ParentNestedScrollView @JvmOverloads constructor(
     private var eatMove = false
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
-        Log.d(TAG, "[dispatchTouchEvent] ${ev?.y}")
+        Log.d(TAG, "[dispatchTouchEvent] ${ev?.y} ${ev?.actionMasked}")
         when (ev?.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 eatMove = false
                 scrollCauser = ScrollCauser.NONE
                 overshootInterpolatorAnimator.cancel()
                 activePointerId = ev.getPointerId(0)
-                lastTouchY = ev.y.toInt()
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
@@ -134,30 +134,30 @@ class ParentNestedScrollView @JvmOverloads constructor(
                             ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat()
                         )
                         val initialVelocity: Float = velocityTracker.getYVelocity(activePointerId)
-                        Log.d(TAG, "[dispatchTouchEvent] $initialVelocity")
+                        Log.d(TAG, "[dispatchTouchEvent] UP/CANCEL ${ev?.actionMasked} | $initialVelocity")
 
                         if (initialVelocity > 0f) {
-                            autoSettle(scrollY, true)
+                            autoSettle(scrollY, true, "1")
                         } else if (initialVelocity < 0f) {
                             eatMove = true
-                            autoSettle(scrollY, false)
+                            autoSettle(scrollY, false, "2")
                         } else {
                             when (openState) {
                                 OpenState.STATE2_1 -> {
                                     if (abs(scrollY - state2Scroll) > abs(scrollY - state1Scroll)) {
-                                        autoSettle(scrollY, true)
+                                        autoSettle(scrollY, true, "3")
                                     } else {
                                         eatMove = true
-                                        autoSettle(scrollY, false)
+                                        autoSettle(scrollY, false, "4")
                                     }
                                 }
 
                                 OpenState.STATE1_0 -> {
                                     if (abs(scrollY - state1Scroll) > abs(scrollY - state0Scroll)) {
-                                        autoSettle(scrollY, true)
+                                        autoSettle(scrollY, true, "5")
                                     } else {
                                         eatMove = true
-                                        autoSettle(scrollY, false)
+                                        autoSettle(scrollY, false, "6")
                                     }
                                 }
 
@@ -174,7 +174,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
         return super.dispatchTouchEvent(ev)
     }
 
-    private var lastMotionY: Int = 0
+    private var lastDownY: Int = 0
     private val touchSlop: Int
 
     init {
@@ -182,24 +182,31 @@ class ParentNestedScrollView @JvmOverloads constructor(
         touchSlop = configuration.scaledTouchSlop
     }
 
+    private var lastMotionY = 0
+
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        Log.d(TAG, "[onInterceptTouchEvent] ${ev.y}")
+        Log.d(TAG, "[onInterceptTouchEvent] ${ev.y} ${ev.actionMasked}")
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                lastMotionY = ev.y.toInt()
+                lastDownY = ev.y.toInt()
+                lastTouchY = ev.y.toInt()
             }
             MotionEvent.ACTION_MOVE -> {
                 val y = ev.y.toInt()
-                val yDiff = abs(y - lastMotionY)
+                val yDiff = abs(y - lastDownY)
+                val yMoveDiff = lastMotionY - ev.y.toInt()
                 if (yDiff > touchSlop) {
-                    return true // 拦截触摸事件，处理滚动
+                    if ((yMoveDiff + scrollY) in state0Scroll..state2Scroll) {
+                        return true // 拦截触摸事件，处理滚动
+                    }
                 }
             }
         }
+        lastMotionY = ev.y.toInt()
         return super.onInterceptTouchEvent(ev) // 不拦截触摸事件，传递给子视图
     }
 
-    private fun autoSettle(scrollY: Int, isDown: Boolean) {
+    private fun autoSettle(scrollY: Int, isDown: Boolean, reason: String) {
         val animateY = when (openState) {
             OpenState.STATE2 -> state2Scroll
             OpenState.STATE2_1 -> if (isDown) state1Scroll else state2Scroll
@@ -255,11 +262,12 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
-        Log.d(TAG, "[dispatchTouchEvent] position ${event?.y}")
         if (event != null && event.y + scrollY < state2Scroll) {
+            Log.d(TAG, "[onTouchEvent] position ${event?.y} ${event.actionMasked} [return]")
             return true
         }
 
+        Log.d(TAG, "[onTouchEvent] position ${event?.y} ${event.actionMasked}")
         return super.onTouchEvent(event)
     }
 
@@ -348,7 +356,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
             else -> {
                 if (y > state2Scroll) {
                     stopFling()
-                    autoSettle(scrollY, true)
+                    autoSettle(scrollY, false, "scrollTo")
                     return
                 } else {
                     if (y in state0Scroll..state2Scroll) {
