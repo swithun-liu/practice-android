@@ -106,9 +106,23 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     private var eatMove = false
+    private var disableTouch = false
 
-    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+    override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         Log.d(TAG, "[dispatchTouchEvent] ${ev?.y} ${ev?.actionMasked}")
+        when {
+            ev.actionMasked == MotionEvent.ACTION_DOWN && ev.y + scrollY < state2Scroll -> {
+                disableTouch = true
+                return true
+            }
+            ev.actionMasked == MotionEvent.ACTION_UP || ev.actionMasked == MotionEvent.ACTION_CANCEL -> {
+                disableTouch = false
+            }
+            else -> { }
+        }
+
+        if (disableTouch) return true
+
         when (ev?.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 eatMove = false
@@ -188,8 +202,11 @@ class ParentNestedScrollView @JvmOverloads constructor(
                 if (yDiffDown > touchSlop) {
                     // 当我还可以滚动的时候，优先滚动我自己
                     val yDiffMotion = lastMotionYForInterceptTouchEvent - ev.y.toInt()
-                    if ((yDiffMotion + scrollY) in state0Scroll..state2Scroll) {
-                        return true
+                    if (yDiffMotion > 0) { // 向上
+                        if ((yDiffMotion + scrollY) in state0Scroll..state2Scroll) {
+                            lastMotionYForInterceptTouchEvent = ev.y.toInt()
+                            return true
+                        }
                     }
                 }
             }
