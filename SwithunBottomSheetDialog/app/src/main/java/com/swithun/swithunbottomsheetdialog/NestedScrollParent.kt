@@ -113,6 +113,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
         when {
             ev.actionMasked == MotionEvent.ACTION_DOWN && ev.y + scrollY < state2Scroll -> {
                 disableTouch = true
+                Log.d(TAG, "[dispatchTouchEvent] [return] ${ev?.y} ${ev?.actionMasked}")
                 return true
             }
             ev.actionMasked == MotionEvent.ACTION_UP || ev.actionMasked == MotionEvent.ACTION_CANCEL -> {
@@ -204,6 +205,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
                     val yDiffMotion = lastMotionYForInterceptTouchEvent - ev.y.toInt()
                     if (yDiffMotion > 0) { // 向上
                         if ((yDiffMotion + scrollY) in state0Scroll..state2Scroll) {
+                            Log.d(TAG, "[onInterceptTouchEvent] [return] $yDiffMotion $scrollY | $state0Scroll -- $state2Scroll")
                             lastMotionYForInterceptTouchEvent = ev.y.toInt()
                             return true
                         }
@@ -272,16 +274,6 @@ class ParentNestedScrollView @JvmOverloads constructor(
                 }
             }
         }
-    }
-
-    override fun onTouchEvent(event: MotionEvent): Boolean {
-        if (event != null && event.y + scrollY < state2Scroll) {
-            Log.d(TAG, "[onTouchEvent] position ${event?.y} ${event.actionMasked} [return]")
-            return true
-        }
-
-        Log.d(TAG, "[onTouchEvent] position ${event?.y} ${event.actionMasked}")
-        return super.onTouchEvent(event)
     }
 
     override fun onNestedScroll(
