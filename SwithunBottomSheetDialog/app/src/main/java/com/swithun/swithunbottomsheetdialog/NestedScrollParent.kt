@@ -28,7 +28,6 @@ class ParentNestedScrollView @JvmOverloads constructor(
         }
     }
 
-    override var scrollCauser: ScrollCauser = ScrollCauser.NONE
 
     private val openState: OpenState
         get() {
@@ -115,12 +114,14 @@ class ParentNestedScrollView @JvmOverloads constructor(
     private var eatMove = false
 
     override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        Log.d(TAG, "[dispatchTouchEvent] ${ev?.y}")
         when (ev?.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 eatMove = false
                 scrollCauser = ScrollCauser.NONE
                 overshootInterpolatorAnimator.cancel()
                 activePointerId = ev.getPointerId(0)
+                lastTouchY = ev.y.toInt()
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
@@ -173,6 +174,30 @@ class ParentNestedScrollView @JvmOverloads constructor(
         return super.dispatchTouchEvent(ev)
     }
 
+    private var lastMotionY: Int = 0
+    private val touchSlop: Int
+
+    init {
+        val configuration = ViewConfiguration.get(context)
+        touchSlop = configuration.scaledTouchSlop
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        Log.d(TAG, "[onInterceptTouchEvent] ${ev.y}")
+        when (ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                lastMotionY = ev.y.toInt()
+            }
+            MotionEvent.ACTION_MOVE -> {
+                val y = ev.y.toInt()
+                val yDiff = abs(y - lastMotionY)
+                if (yDiff > touchSlop) {
+                    return true // 拦截触摸事件，处理滚动
+                }
+            }
+        }
+        return super.onInterceptTouchEvent(ev) // 不拦截触摸事件，传递给子视图
+    }
 
     private fun autoSettle(scrollY: Int, isDown: Boolean) {
         val animateY = when (openState) {
@@ -182,6 +207,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
             OpenState.STATE1_0 -> if (isDown) state0Scroll else state1Scroll
             OpenState.STATE0 -> null
         } ?: return
+        Log.d(TAG, "[scrollCauser] to AUTO_SETTLE")
         scrollCauser = AUTO_SETTLE
         mScroller.abortAnimation()
         stopNestedScroll(ViewCompat.TYPE_NON_TOUCH)
@@ -313,33 +339,26 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     override fun scrollTo(x: Int, y: Int) {
-        when (scrollCauser) {
-            AUTO_SETTLE -> {
+        Log.d(TAG, "[scrollTo] $y $scrollCauser")
+        when {
+            scrollCauser == AUTO_SETTLE -> {
                 originalScrollTo(x, y)
                 return
             }
-
-            ScrollCauser.FLING -> {
-                when (openState) {
-                    OpenState.STATE2 -> {
-                        if (y <= state2Scroll) {
-                            stopFling()
-                            autoSettle(scrollY, true)
-                            return
-                        }
-                    }
-
-                    else -> {}
-                }
-            }
-
             else -> {
-                if (y >= state0Scroll && y <= (firstView.height - height)) {
-                    Log.d(TAG, "[scrollTo]#[true] $y ${firstView.height}")
-                    originalScrollTo(x, y)
+                if (y > state2Scroll) {
+                    stopFling()
+                    autoSettle(scrollY, true)
+                    return
                 } else {
-                    Log.d(TAG, "[scrollTo]#[false] $y ${firstView.height}")
+                    if (y in state0Scroll..state2Scroll) {
+                        Log.d(TAG, "[scrollTo]#[true] $y ${firstView.height}")
+                        originalScrollTo(x, y)
+                    } else {
+                        Log.d(TAG, "[scrollTo]#[false] $y ${firstView.height}")
+                    }
                 }
+
             }
         }
 

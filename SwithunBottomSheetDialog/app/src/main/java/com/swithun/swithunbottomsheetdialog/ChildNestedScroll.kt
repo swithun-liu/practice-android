@@ -17,7 +17,7 @@ open class ChildNestedScrollView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr), NestedScrollingChild3 {
 
-    private var lastTouchY = 0
+    protected var lastTouchY = 0
     private var scrollConsumed = IntArray(2)
     private var scrollOffset = IntArray(2)
     private val childHelper by lazy {
@@ -141,7 +141,6 @@ open class ChildNestedScrollView @JvmOverloads constructor(
 
             MotionEvent.ACTION_CANCEL,
             MotionEvent.ACTION_UP -> {
-                scrollCauser = ScrollCauser.NONE
                 // 停止滚动
                 stopNestedScroll(ViewCompat.TYPE_TOUCH)
 
@@ -174,6 +173,7 @@ open class ChildNestedScrollView @JvmOverloads constructor(
 
     protected open fun fling(fl: Float) {
         Log.d(TAG, "fling $fl")
+        Log.d(TAG, "[scrollCauser] to FLING")
         scrollCauser = ScrollCauser.FLING
         mScroller.fling(
             scrollX, scrollY,

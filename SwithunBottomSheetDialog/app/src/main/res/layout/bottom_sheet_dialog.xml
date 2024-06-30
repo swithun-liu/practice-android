@@ -45,10 +45,25 @@
                             android:layout_width="wrap_content"
                             android:layout_height="300dp"/>
 
+                        <TextView
+                            android:id="@+id/testClick"
+                            android:text="点点我点我点我点我点我点我点我点我点我点我点我我"
+                            android:clickable="true"
+                            android:focusable="true"
+                            android:layout_width="match_parent"
+                            android:layout_height="match_parent"/>
+
                         <View
                             android:background="#E91E63"
                             android:layout_width="wrap_content"
                             android:layout_height="300dp"/>
+
+                        <Button
+                            android:id="@+id/clickButton"
+                            android:layout_width="match_parent"
+                            android:text="我是button"
+                            android:layout_height="match_parent"/>
+
                         <View
                             android:background="#9C27B0"
                             android:layout_width="wrap_content"
