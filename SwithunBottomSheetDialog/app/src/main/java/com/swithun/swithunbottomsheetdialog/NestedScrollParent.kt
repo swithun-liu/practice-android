@@ -40,13 +40,17 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
     // scroll下负
     private val state0Scroll
-        get() = -(height - state2Scroll) + 200
+        get() = -height + 200
 
-    private val state1Scroll = 0
+
+    val state1ParentTopDistance = 1000
+
+    private val state1Scroll
+        get() = -state1ParentTopDistance
 
     // scroll上正
     private val state2Scroll
-        get() = state1ParentTopDistance.coerceAtMost(firstView.height - height)
+        get() = 0
 
     private val parentHelper by lazy {
         NestedScrollingParentHelper(this)
@@ -59,8 +63,6 @@ class ParentNestedScrollView @JvmOverloads constructor(
         children.first()
     }
 
-    val state1ParentTopDistance = 1000
-
     private var animateValue = AnimateValue(0, 0)
 
     private val overshootInterpolatorAnimator = ValueAnimator()
@@ -69,8 +71,6 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
     init {
         this.post {
-            val view = (firstView as LinearLayout)
-            view.setPadding(0, state1ParentTopDistance, 0, 0)
         }
         overshootInterpolatorAnimator.addUpdateListener {
             val process = (it.animatedValue as Float)
@@ -116,10 +116,12 @@ class ParentNestedScrollView @JvmOverloads constructor(
                 Log.d(TAG, "[dispatchTouchEvent] [return] ${ev?.y} ${ev?.actionMasked}")
                 return true
             }
+
             ev.actionMasked == MotionEvent.ACTION_UP || ev.actionMasked == MotionEvent.ACTION_CANCEL -> {
                 disableTouch = false
             }
-            else -> { }
+
+            else -> {}
         }
 
         if (disableTouch) return true
@@ -142,7 +144,10 @@ class ParentNestedScrollView @JvmOverloads constructor(
                             ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat()
                         )
                         val initialVelocity: Float = velocityTracker.getYVelocity(activePointerId)
-                        Log.d(TAG, "[dispatchTouchEvent] UP/CANCEL ${ev?.actionMasked} | $initialVelocity")
+                        Log.d(
+                            TAG,
+                            "[dispatchTouchEvent] UP/CANCEL ${ev?.actionMasked} | $initialVelocity"
+                        )
 
                         if (initialVelocity > 0f) {
                             autoSettle(scrollY, true, "1")
@@ -196,6 +201,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
                 // 记录Down
                 lastDownYForInterceptEvent = ev.y.toInt()
             }
+
             MotionEvent.ACTION_MOVE -> {
                 val y = ev.y.toInt()
                 // 认为算是滚动
@@ -205,7 +211,10 @@ class ParentNestedScrollView @JvmOverloads constructor(
                     val yDiffMotion = lastMotionYForInterceptTouchEvent - ev.y.toInt()
                     if (yDiffMotion > 0) { // 向上
                         if ((yDiffMotion + scrollY) in state0Scroll..state2Scroll) {
-                            Log.d(TAG, "[onInterceptTouchEvent] [return] $yDiffMotion $scrollY | $state0Scroll -- $state2Scroll")
+                            Log.d(
+                                TAG,
+                                "[onInterceptTouchEvent] [return] $yDiffMotion $scrollY | $state0Scroll -- $state2Scroll"
+                            )
                             lastMotionYForInterceptTouchEvent = ev.y.toInt()
                             return true
                         }
@@ -247,30 +256,32 @@ class ParentNestedScrollView @JvmOverloads constructor(
         dyConsumed: Int,
         dxUnconsumed: Int,
         dyUnconsumed: Int,
-        @NestedScrollType
-        type: Int,
+        @NestedScrollType type: Int,
         consumed: IntArray
     ) {
         Log.i(TAG, "[onNestedScroll] $dyUnconsumed")
-        if ((state1ParentTopDistance - scrollY) == 0 || firstView.height - scrollY <= height) {
-            // 到顶
-            when (type) {
+        when (openState) {
+            OpenState.STATE2 -> {
+                // 到顶
+                when (type) {
 
-                ViewCompat.TYPE_NON_TOUCH -> {
-                }
+                    ViewCompat.TYPE_NON_TOUCH -> {
+                    }
 
-                ViewCompat.TYPE_TOUCH -> {
-                    doNestedPreScroll(dyUnconsumed, consumed, type)
+                    ViewCompat.TYPE_TOUCH -> {
+                        doNestedPreScroll(dyUnconsumed, consumed, type)
+                    }
                 }
             }
-        } else { // 没到顶
-            when (type) {
+// 没到顶
+            else -> {
+                when (type) {
+                    ViewCompat.TYPE_NON_TOUCH -> {
+                    }
 
-                ViewCompat.TYPE_NON_TOUCH -> {
-                }
-
-                ViewCompat.TYPE_TOUCH -> {
-                    doNestedPreScroll(dyUnconsumed, consumed, type)
+                    ViewCompat.TYPE_TOUCH -> {
+                        doNestedPreScroll(dyUnconsumed, consumed, type)
+                    }
                 }
             }
         }
@@ -288,11 +299,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     override fun onNestedPreScroll(
-        target: View,
-        dx: Int,
-        dy: Int,
-        consumed: IntArray,
-        @NestedScrollType type: Int
+        target: View, dx: Int, dy: Int, consumed: IntArray, @NestedScrollType type: Int
     ) {
         Log.i(TAG, "[onNestedPreScroll] 1- $dy [$scrollY] ||| ${System.currentTimeMillis()}")
         // dy 下 负数 上 正数
@@ -302,20 +309,24 @@ class ParentNestedScrollView @JvmOverloads constructor(
             // 上
             dy >= 0 -> {
                 val parentWantToConsume = dy
-                if ((state1ParentTopDistance - scrollY) == 0 || firstView.height - scrollY <= height) {
+                when (openState) {
                     // 到顶
-                    doNestedPreScroll(parentWantToConsume, consumed, type)
-                    if (eatMove) {
-                        consumed[1] = dy
-                    }
-                } else { // 没到顶
-                    when (type) {
-                        ViewCompat.TYPE_NON_TOUCH -> {
-                            consumed[1] = parentWantToConsume
+                    OpenState.STATE2 -> {
+                        doNestedPreScroll(parentWantToConsume, consumed, type)
+                        if (eatMove) {
+                            consumed[1] = dy
                         }
+                    }
+                    // 没到顶
+                    else -> {
+                        when (type) {
+                            ViewCompat.TYPE_NON_TOUCH -> {
+                                consumed[1] = parentWantToConsume
+                            }
 
-                        ViewCompat.TYPE_TOUCH -> {
-                            doNestedPreScroll(parentWantToConsume, consumed, type)
+                            ViewCompat.TYPE_TOUCH -> {
+                                doNestedPreScroll(parentWantToConsume, consumed, type)
+                            }
                         }
                     }
                 }
@@ -327,9 +338,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     private fun doNestedPreScroll(
-        parentWantToConsume: Int,
-        consumed: IntArray,
-        @NestedScrollType type: Int
+        parentWantToConsume: Int, consumed: IntArray, @NestedScrollType type: Int
     ) {
         val nextY = scrollY + parentWantToConsume
         val maxNextY = state2Scroll
@@ -358,6 +367,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
                 originalScrollTo(x, y)
                 return
             }
+
             else -> {
                 if (y > state2Scroll) {
                     stopFling()
@@ -394,11 +404,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
     object AUTO_SETTLE : ScrollCauser
 
     enum class OpenState {
-        STATE2,
-        STATE2_1,
-        STATE1,
-        STATE1_0,
-        STATE0
+        STATE2, STATE2_1, STATE1, STATE1_0, STATE0
     }
 
     companion object {
