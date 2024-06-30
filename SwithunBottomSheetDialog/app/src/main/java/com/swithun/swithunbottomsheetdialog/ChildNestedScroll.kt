@@ -17,7 +17,8 @@ open class ChildNestedScrollView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr), NestedScrollingChild3 {
 
-    protected var lastTouchY = 0
+    protected var lastMotionForOnTouch = 0
+
     private var scrollConsumed = IntArray(2)
     private var scrollOffset = IntArray(2)
     private val childHelper by lazy {
@@ -30,7 +31,7 @@ open class ChildNestedScrollView @JvmOverloads constructor(
         children.first()
     }
 
-    open protected var scrollCauser: ScrollCauser = ScrollCauser.NONE
+    protected var scrollCauser: ScrollCauser = ScrollCauser.NONE
 
     protected val mScroller = OverScroller(context)
     protected val isFling: Boolean
@@ -48,7 +49,7 @@ open class ChildNestedScrollView @JvmOverloads constructor(
 
                 // 手动滚动处理
                 run handleUserScroll@{
-                    lastTouchY = touchY
+                    lastMotionForOnTouch = touchY
                     activePointerId = event.getPointerId(0)
                     startNestedScroll(ViewCompat.SCROLL_AXIS_VERTICAL, ViewCompat.TYPE_TOUCH)
                 }
@@ -57,11 +58,11 @@ open class ChildNestedScrollView @JvmOverloads constructor(
             MotionEvent.ACTION_MOVE -> {
                 scrollCauser = ScrollCauser.NONE
 
-                Log.d(TAG, "[onTouchEvent] on ACTION_MOVE $lastTouchY $touchY")
+                Log.d(TAG, "[onTouchEvent] on ACTION_MOVE $lastMotionForOnTouch $touchY")
 
                 scrollCauser = ScrollCauser.USER_TOUCH
                 // 要滚多少
-                val moveY = lastTouchY - touchY
+                val moveY = lastMotionForOnTouch - touchY
                 // 记录还能滚多少
                 var unconsumedMoveY = moveY
 
@@ -105,9 +106,9 @@ open class ChildNestedScrollView @JvmOverloads constructor(
                         scrollBy(0, childScroll)
                         Log.d(
                             TAG,
-                            "[onTouchEvent]#[child scrollBy]#true $moveY $parentConsumed | $lastTouchY $touchY | $childScroll -- $scrollY"
+                            "[onTouchEvent]#[child scrollBy]#true $moveY $parentConsumed | $lastMotionForOnTouch $touchY | $childScroll -- $scrollY"
                         )
-                        lastTouchY = touchY
+                        lastMotionForOnTouch = touchY
                     }
                 }
 

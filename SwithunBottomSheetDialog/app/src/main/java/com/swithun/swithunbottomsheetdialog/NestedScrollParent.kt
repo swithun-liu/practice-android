@@ -22,12 +22,8 @@ class ParentNestedScrollView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : ChildNestedScrollView(context, attrs, defStyleAttr), NestedScrollingParent3 {
 
-    override fun fling(fl: Float) {
-        if (scrollCauser != AUTO_SETTLE) {
-            super.fling(fl)
-        }
-    }
-
+    private var lastMotionYForInterceptTouchEvent = 0
+    private var lastDownYForInterceptEvent: Int = 0
 
     private val openState: OpenState
         get() {
@@ -50,8 +46,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
     // scroll上正
     private val state2Scroll
-        get() = getMaxScroll()
-
+        get() = state1ParentTopDistance.coerceAtMost(firstView.height - height)
 
     private val parentHelper by lazy {
         NestedScrollingParentHelper(this)
@@ -64,11 +59,9 @@ class ParentNestedScrollView @JvmOverloads constructor(
         children.first()
     }
 
-    private val halfTop = 1000
-    private var animateValue = AnimateValue(
-        0, 0
-    )
+    val state1ParentTopDistance = 1000
 
+    private var animateValue = AnimateValue(0, 0)
 
     private val overshootInterpolatorAnimator = ValueAnimator()
     private val overshootInterpolator = OvershootInterpolator(1f)
@@ -77,7 +70,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
     init {
         this.post {
             val view = (firstView as LinearLayout)
-            view.setPadding(0, halfTop, 0, 0)
+            view.setPadding(0, state1ParentTopDistance, 0, 0)
         }
         overshootInterpolatorAnimator.addUpdateListener {
             val process = (it.animatedValue as Float)
@@ -174,7 +167,6 @@ class ParentNestedScrollView @JvmOverloads constructor(
         return super.dispatchTouchEvent(ev)
     }
 
-    private var lastDownY: Int = 0
     private val touchSlop: Int
 
     init {
@@ -182,27 +174,31 @@ class ParentNestedScrollView @JvmOverloads constructor(
         touchSlop = configuration.scaledTouchSlop
     }
 
-    private var lastMotionY = 0
-
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         Log.d(TAG, "[onInterceptTouchEvent] ${ev.y} ${ev.actionMasked}")
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                lastDownY = ev.y.toInt()
-                lastTouchY = ev.y.toInt()
+                // 记录Down
+                lastDownYForInterceptEvent = ev.y.toInt()
             }
             MotionEvent.ACTION_MOVE -> {
                 val y = ev.y.toInt()
-                val yDiff = abs(y - lastDownY)
-                val yMoveDiff = lastMotionY - ev.y.toInt()
-                if (yDiff > touchSlop) {
-                    if ((yMoveDiff + scrollY) in state0Scroll..state2Scroll) {
-                        return true // 拦截触摸事件，处理滚动
+                // 认为算是滚动
+                val yDiffDown = abs(y - lastDownYForInterceptEvent)
+                if (yDiffDown > touchSlop) {
+                    // 当我还可以滚动的时候，优先滚动我自己
+                    val yDiffMotion = lastMotionYForInterceptTouchEvent - ev.y.toInt()
+                    if ((yDiffMotion + scrollY) in state0Scroll..state2Scroll) {
+                        return true
                     }
                 }
             }
         }
-        lastMotionY = ev.y.toInt()
+
+        // 在拦截事件之前，走不到onTouch，所以需要在这里记录一下，
+        // 拦截事件之后，就不会走[onInterceptEvent]了，只走[onTouchEvent]，所以对之后的"onTouchEvent对lastMotionForOnTouch"的记录不回有影响
+        lastMotionForOnTouch = ev.y.toInt()
+        lastMotionYForInterceptTouchEvent = ev.y.toInt()
         return super.onInterceptTouchEvent(ev) // 不拦截触摸事件，传递给子视图
     }
 
@@ -237,7 +233,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
         consumed: IntArray
     ) {
         Log.i(TAG, "[onNestedScroll] $dyUnconsumed")
-        if ((halfTop - scrollY) == 0 || firstView.height - scrollY <= height) {
+        if ((state1ParentTopDistance - scrollY) == 0 || firstView.height - scrollY <= height) {
             // 到顶
             when (type) {
 
@@ -297,7 +293,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
             // 上
             dy >= 0 -> {
                 val parentWantToConsume = dy
-                if ((halfTop - scrollY) == 0 || firstView.height - scrollY <= height) {
+                if ((state1ParentTopDistance - scrollY) == 0 || firstView.height - scrollY <= height) {
                     // 到顶
                     doNestedPreScroll(parentWantToConsume, consumed, type)
                     if (eatMove) {
@@ -369,11 +365,12 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
             }
         }
-
     }
 
-    fun getMaxScroll(): Int {
-        return Math.min(halfTop, firstView.height - height)
+    override fun fling(fl: Float) {
+        if (scrollCauser != AUTO_SETTLE) {
+            super.fling(fl)
+        }
     }
 
     data class AnimateValue(
