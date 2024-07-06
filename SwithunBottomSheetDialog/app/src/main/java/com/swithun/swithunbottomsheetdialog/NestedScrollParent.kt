@@ -26,17 +26,18 @@ class ParentNestedScrollView @JvmOverloads constructor(
     private var lastMotionYForInterceptTouchEvent = 0
     private var lastDownYForInterceptEvent: Int = 0
 
-    private val stateList = listOf(
-        state0Scroll,
-        state1Scroll,
-        state2Scroll
-    )
+    private val stateList
+        get() = listOf(
+            state0Scroll, // -2691
+            state1Scroll, // -1000
+            state2Scroll // 0
+        )
 
     private val openStateV2: Pair<Int, Int>
         get() {
-            var oldState = stateList.size -1
-            for (i in (stateList.size - 1..0)) {
-                if (scrollY > stateList[i]) {
+            var oldState = stateList.size - 1
+            for (i in stateList.indices.reversed()) {
+                if (scrollY >= stateList[i]) {
                     return i to oldState
                 }
                 oldState = i
@@ -226,14 +227,16 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     private fun autoSettle(scrollY: Int, isDown: Boolean, reason: String) {
-        val animateY = when (openState) {
-            OpenState.STATE2 -> state2Scroll
-            OpenState.STATE2_1 -> if (isDown) state1Scroll else state2Scroll
-            OpenState.STATE1 -> null
-            OpenState.STATE1_0 -> if (isDown) state0Scroll else state1Scroll
-            OpenState.STATE0 -> null
-        } ?: return
-        Log.d(TAG, "[scrollCauser] to AUTO_SETTLE")
+        val up = openStateV2.second
+        val down = openStateV2.first
+
+        val animateY = if (isDown) {
+            stateList[down]
+        } else {
+            stateList[up]
+        }
+        Log.d(TAG, "[autoSettle] [up: $up] [down: $down] [isD: $isDown] [toY: $animateY]")
+
         scrollCauser = AUTO_SETTLE
         mScroller.abortAnimation()
         stopNestedScroll(ViewCompat.TYPE_NON_TOUCH)
@@ -296,7 +299,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
     override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
         super.onScrollChanged(l, t, oldl, oldt)
         findViewById<TextView>(R.id.headerTitle).text =
-            "header [s: $t] [state: $openState] [h: $height] [ch: ${firstView.height}]"
+            "header [s: $t] [state: $openState] [s2: $openStateV2] [h: $height] [ch: ${firstView.height}]"
     }
 
     override fun onNestedPreScroll(
