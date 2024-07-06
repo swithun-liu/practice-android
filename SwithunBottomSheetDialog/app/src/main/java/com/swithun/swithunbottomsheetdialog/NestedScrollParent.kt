@@ -308,7 +308,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
     override fun onNestedPreScroll(
         target: View, dx: Int, dy: Int, consumed: IntArray, @NestedScrollType type: Int
     ) {
-        Log.i(TAG, "[onNestedPreScroll] 1- $dy [$scrollY] ||| ${System.currentTimeMillis()}")
+        Log.i(TAG, "[onNestedPreScroll] [dy: $dy] [s: $scrollY] [state: $openState] [eat: $eatMove]")
         // dy 下 负数 上 正数
         // scrollY 上 正 下 负
 
@@ -358,9 +358,9 @@ class ParentNestedScrollView @JvmOverloads constructor(
         }
 
         when (val safePrentWantToConsume = safeNextY - scrollY) {
-            0 -> Log.i(TAG, "[onNestedPreScroll]#false ($type)")
+            0 -> Log.i(TAG, "[doNestedPreScroll]#false ($type)")
             else -> {
-                Log.i(TAG, "[onNestedPreScroll]#true ($type) ${scrollY} ${firstView.height}")
+                Log.i(TAG, "[doNestedPreScroll]#true ($type) ${scrollY} ${firstView.height}")
                 consumed[1] = safePrentWantToConsume
                 scrollBy(0, safePrentWantToConsume)
             }
