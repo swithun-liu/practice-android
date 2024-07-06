@@ -10,6 +10,7 @@ import android.view.View
 import android.view.ViewConfiguration
 import android.view.animation.OvershootInterpolator
 import android.widget.LinearLayout
+import android.widget.TextView
 import androidx.core.view.NestedScrollingParent3
 import androidx.core.view.NestedScrollingParentHelper
 import androidx.core.view.ViewCompat
@@ -296,6 +297,12 @@ class ParentNestedScrollView @JvmOverloads constructor(
         type: Int
     ) {
         Log.i(TAG, "[onNestedScroll]2")
+    }
+
+    override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
+        super.onScrollChanged(l, t, oldl, oldt)
+        findViewById<TextView>(R.id.headerTitle).text =
+            "header [s: $t] [state: $openState] [h: $height] [ch: ${firstView.height}]"
     }
 
     override fun onNestedPreScroll(
