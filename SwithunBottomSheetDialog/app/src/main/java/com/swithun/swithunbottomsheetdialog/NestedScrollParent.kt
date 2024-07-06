@@ -26,6 +26,24 @@ class ParentNestedScrollView @JvmOverloads constructor(
     private var lastMotionYForInterceptTouchEvent = 0
     private var lastDownYForInterceptEvent: Int = 0
 
+    private val stateList = listOf(
+        state0Scroll,
+        state1Scroll,
+        state2Scroll
+    )
+
+    private val openStateV2: Pair<Int, Int>
+        get() {
+            var oldState = stateList.size -1
+            for (i in (stateList.size - 1..0)) {
+                if (scrollY > stateList[i]) {
+                    return i to oldState
+                }
+                oldState = i
+            }
+            return 0 to oldState
+        }
+
     private val openState: OpenState
         get() {
             return when {
@@ -136,51 +154,27 @@ class ParentNestedScrollView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                when (openState) {
-                    OpenState.STATE2, OpenState.STATE1, OpenState.STATE0 -> {}
-                    OpenState.STATE2_1, OpenState.STATE1_0 -> {
-                        // 下正
-                        velocityTracker.computeCurrentVelocity(
-                            1000,
-                            ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat()
-                        )
-                        val initialVelocity: Float = velocityTracker.getYVelocity(activePointerId)
-                        Log.d(
-                            TAG,
-                            "[dispatchTouchEvent] UP/CANCEL ${ev?.actionMasked} | $initialVelocity"
-                        )
-
-                        if (initialVelocity > 0f) {
-                            autoSettle(scrollY, true, "1")
-                        } else if (initialVelocity < 0f) {
-                            eatMove = true
-                            autoSettle(scrollY, false, "2")
+                if (openStateV2.first != openStateV2.second) {
+                    // 下正
+                    velocityTracker.computeCurrentVelocity(
+                        1000,
+                        ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat()
+                    )
+                    val initialVelocity: Float = velocityTracker.getYVelocity(activePointerId)
+                    if (initialVelocity > 0) { // 速度向下
+                        autoSettle(scrollY, true, "")
+                    } else if (initialVelocity < 0) { // 速度向上
+                        eatMove = true
+                        autoSettle(scrollY, false, "")
+                    } else { // 速度为0
+                        if (Math.abs(scrollY - openStateV2.first) > Math.abs(scrollY - openStateV2.second)) {
+                            autoSettle(scrollY, true, "")
                         } else {
-                            when (openState) {
-                                OpenState.STATE2_1 -> {
-                                    if (abs(scrollY - state2Scroll) > abs(scrollY - state1Scroll)) {
-                                        autoSettle(scrollY, true, "3")
-                                    } else {
-                                        eatMove = true
-                                        autoSettle(scrollY, false, "4")
-                                    }
-                                }
-
-                                OpenState.STATE1_0 -> {
-                                    if (abs(scrollY - state1Scroll) > abs(scrollY - state0Scroll)) {
-                                        autoSettle(scrollY, true, "5")
-                                    } else {
-                                        eatMove = true
-                                        autoSettle(scrollY, false, "6")
-                                    }
-                                }
-
-                                else -> {}
-                            }
+                            eatMove = true
+                            autoSettle(scrollY, false, "")
                         }
                     }
                 }
-
                 activePointerId = INVALID_POINTER
             }
         }
@@ -308,7 +302,10 @@ class ParentNestedScrollView @JvmOverloads constructor(
     override fun onNestedPreScroll(
         target: View, dx: Int, dy: Int, consumed: IntArray, @NestedScrollType type: Int
     ) {
-        Log.i(TAG, "[onNestedPreScroll] [dy: $dy] [s: $scrollY] [state: $openState] [eat: $eatMove]")
+        Log.i(
+            TAG,
+            "[onNestedPreScroll] [dy: $dy] [s: $scrollY] [state: $openState] [eat: $eatMove]"
+        )
         // dy 下 负数 上 正数
         // scrollY 上 正 下 负
 
