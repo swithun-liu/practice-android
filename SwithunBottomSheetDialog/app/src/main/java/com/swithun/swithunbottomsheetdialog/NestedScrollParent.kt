@@ -19,28 +19,30 @@ import androidx.core.view.children
 import androidx.customview.widget.ViewDragHelper.INVALID_POINTER
 import kotlin.math.abs
 
-class ParentNestedScrollView @JvmOverloads constructor(
+class BottomSheetDialogLayout @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr), NestedScrollingParent3 {
 
-    private var lastMotionYForInterceptTouchEvent = 0
-    private var lastDownYForInterceptEvent: Int = 0
-
-    protected var scrollCauser: ScrollCauser = ScrollCauser.NONE
-
-    // scroll下负
-    private val state0Scroll
-        get() = -height + 200
-
-
     val state1ParentTopDistance = 1000
 
-    private val state1Scroll
-        get() = -state1ParentTopDistance
+    /** [onTouchEvent]记录上一个EventY */
+    private var lastMotionYForOnTouchEvent = 0
+    /** [onTouchEvent]记录上一个DownEventY */
+    private var lastDownYForOnTouchEvent = 0
 
-    // scroll上正
-    private val state2Scroll
-        get() = 0
+    /** [onInterceptTouchEvent]记录上一个EventY */
+    private var lastMotionYForInterceptTouchEvent = 0
+    /** [onInterceptTouchEvent]记录上一个DownEventY */
+    private var lastDownYForInterceptEvent: Int = 0
+
+    /** 造成滚动的原因 */
+    private var scrollCauser: ScrollCauser = ScrollCauser.NONE
+
+    private val state0Scroll get() = -height + 200
+
+    private val state1Scroll get() = -state1ParentTopDistance
+
+    private val state2Scroll get() = 0
 
     private val stateList
         get() = listOf(
@@ -49,6 +51,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
             state2Scroll // 0
         )
 
+    /** <当前State，更高的State> */
     private val openState: Pair<Int, Int>
         get() {
             var oldState = stateList.size - 1
@@ -67,31 +70,28 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
     private val velocityTracker = VelocityTracker.obtain()
 
-    // 第一个View
+    /** 第一个View */
     private val firstView by lazy {
         children.first()
     }
 
-    private var animateValue = AnimateValue(0, 0)
+    private var animateStartY2EndY = AnimateValue(0, 0)
 
-    private val overshootInterpolatorAnimator = ValueAnimator()
-    private val overshootInterpolator = OvershootInterpolator(1f)
+    private val autoSettleAnimator = ValueAnimator().also {
+        it.interpolator = OvershootInterpolator(1f)
+    }
+
     private var activePointerId = INVALID_POINTER
-    protected var lastMotionForOnTouch = 0
-    protected var lastDownForOnTouch = 0
 
     init {
-        this.post {
-        }
-        overshootInterpolatorAnimator.addUpdateListener {
+        autoSettleAnimator.addUpdateListener {
             val process = (it.animatedValue as Float)
-            val overshootProcess = overshootInterpolator.getInterpolation(process)
-            val passed = (animateValue.endY - animateValue.startY) * overshootProcess
-            val newScrollY = animateValue.startY + passed
+            val passed = (animateStartY2EndY.endY - animateStartY2EndY.startY) * process
+            val newScrollY = animateStartY2EndY.startY + passed
             Log.d(TAG, "[AUTO_SETTLE_ANIM] listener $process | $newScrollY")
             Log.d(
                 TAG,
-                "[Fling Animate] $process $overshootProcess | ${animateValue.endY}, ${animateValue.startY} | $passed $newScrollY"
+                "[Fling Animate] $process $process | ${animateStartY2EndY.endY}, ${animateStartY2EndY.startY} | $passed $newScrollY"
             )
             this.scrollTo(scrollX, newScrollY.toInt())
         }
@@ -120,10 +120,10 @@ class ParentNestedScrollView @JvmOverloads constructor(
             }
             MotionEvent.ACTION_MOVE -> {
                 // 要滚多少
-                val moveY = lastMotionForOnTouch - touchY
+                val moveY = lastMotionYForOnTouchEvent - touchY
                 scrollCauser = ScrollCauser.USER_TOUCH
                 scrollBy(0, moveY)
-                lastMotionForOnTouch = touchY
+                lastMotionYForOnTouchEvent = touchY
             }
         }
         return true
@@ -131,9 +131,9 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
     private fun recordDownForOnTouchEvent(touchY: Int) {
         scrollCauser = ScrollCauser.NONE
-        overshootInterpolatorAnimator.cancel()
-        lastDownForOnTouch = touchY
-        lastMotionForOnTouch = touchY
+        autoSettleAnimator.cancel()
+        lastDownYForOnTouchEvent = touchY
+        lastMotionYForOnTouchEvent = touchY
     }
 
     override fun onStopNestedScroll(target: View, type: Int) {
@@ -164,7 +164,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
         when (ev?.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 scrollCauser = ScrollCauser.NONE
-                overshootInterpolatorAnimator.cancel()
+                autoSettleAnimator.cancel()
                 activePointerId = ev.getPointerId(0)
             }
 
@@ -225,7 +225,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
         // 在拦截事件之前，走不到onTouch，所以需要在这里记录一下，
         // 拦截事件之后，就不会走[onInterceptEvent]了，只走[onTouchEvent]，所以对之后的"onTouchEvent对lastMotionForOnTouch"的记录不回有影响
-        lastMotionForOnTouch = ev.y.toInt()
+        lastMotionYForOnTouchEvent = ev.y.toInt()
         lastMotionYForInterceptTouchEvent = ev.y.toInt()
         return super.onInterceptTouchEvent(ev) // 不拦截触摸事件，传递给子视图
     }
@@ -244,10 +244,10 @@ class ParentNestedScrollView @JvmOverloads constructor(
         scrollCauser = AUTO_SETTLE
 
         setAnimatedValue { AnimateValue(scrollY, animateY) }
-        overshootInterpolatorAnimator.cancel()
-        overshootInterpolatorAnimator.duration = 400
-        overshootInterpolatorAnimator.setFloatValues(0f, 1f)
-        overshootInterpolatorAnimator.start()
+        autoSettleAnimator.cancel()
+        autoSettleAnimator.duration = 400
+        autoSettleAnimator.setFloatValues(0f, 1f)
+        autoSettleAnimator.start()
     }
 
     override fun onNestedScroll(
@@ -383,7 +383,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
     )
 
     private fun setAnimatedValue(reducer: AnimateValue.() -> AnimateValue) {
-        this.animateValue = reducer(this.animateValue)
+        this.animateStartY2EndY = reducer(this.animateStartY2EndY)
     }
 
     object AUTO_SETTLE : ScrollCauser

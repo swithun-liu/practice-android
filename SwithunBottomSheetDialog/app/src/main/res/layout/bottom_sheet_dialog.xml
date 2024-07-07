@@ -1,6 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 
-    <com.swithun.swithunbottomsheetdialog.ParentNestedScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+    <com.swithun.swithunbottomsheetdialog.BottomSheetDialogLayout xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/root"
         android:background="#00000000"
         android:layout_width="match_parent"
@@ -103,4 +103,4 @@
 
         </LinearLayout>
 
-    </com.swithun.swithunbottomsheetdialog.ParentNestedScrollView>
+    </com.swithun.swithunbottomsheetdialog.BottomSheetDialogLayout>
