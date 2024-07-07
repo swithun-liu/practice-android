@@ -9,7 +9,6 @@ import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.animation.OvershootInterpolator
-import android.widget.LinearLayout
 import android.widget.TextView
 import androidx.core.view.NestedScrollingParent3
 import androidx.core.view.NestedScrollingParentHelper
@@ -26,25 +25,6 @@ class ParentNestedScrollView @JvmOverloads constructor(
     private var lastMotionYForInterceptTouchEvent = 0
     private var lastDownYForInterceptEvent: Int = 0
 
-    private val stateList
-        get() = listOf(
-            state0Scroll, // -2691
-            state1Scroll, // -1000
-            state2Scroll // 0
-        )
-
-    private val openStateV2: Pair<Int, Int>
-        get() {
-            var oldState = stateList.size - 1
-            for (i in stateList.indices.reversed()) {
-                if (scrollY >= stateList[i]) {
-                    return i to oldState
-                }
-                oldState = i
-            }
-            return 0 to oldState
-        }
-
     // scroll下负
     private val state0Scroll
         get() = -height + 200
@@ -58,6 +38,25 @@ class ParentNestedScrollView @JvmOverloads constructor(
     // scroll上正
     private val state2Scroll
         get() = 0
+
+    private val stateList
+        get() = listOf(
+            state0Scroll, // -2691
+            state1Scroll, // -1000
+            state2Scroll // 0
+        )
+
+    private val openState: Pair<Int, Int>
+        get() {
+            var oldState = stateList.size - 1
+            for (i in stateList.indices.reversed()) {
+                if (scrollY >= stateList[i]) {
+                    return i to oldState
+                }
+                oldState = i
+            }
+            return 0 to oldState
+        }
 
     private val parentHelper by lazy {
         NestedScrollingParentHelper(this)
@@ -117,7 +116,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         Log.d(TAG, "[dispatchTouchEvent] ${ev?.y} ${ev?.actionMasked}")
         when {
-            ev.actionMasked == MotionEvent.ACTION_DOWN && ev.y + scrollY < state2Scroll -> {
+            ev.actionMasked == MotionEvent.ACTION_DOWN && ev.y + scrollY < verticalScrollRange().last -> {
                 disableTouch = true
                 Log.d(TAG, "[dispatchTouchEvent] [return] ${ev?.y} ${ev?.actionMasked}")
                 return true
@@ -140,7 +139,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                if (openStateV2.first != openStateV2.second) {
+                if (openState.first != openState.second) {
                     // 下正
                     velocityTracker.computeCurrentVelocity(
                         1000,
@@ -152,7 +151,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
                     } else if (initialVelocity < 0) { // 速度向上
                         autoSettle(scrollY, false, "")
                     } else { // 速度为0
-                        if (Math.abs(scrollY - openStateV2.first) > Math.abs(scrollY - openStateV2.second)) {
+                        if (Math.abs(scrollY - openState.first) > Math.abs(scrollY - openState.second)) {
                             autoSettle(scrollY, true, "")
                         } else {
                             autoSettle(scrollY, false, "")
@@ -189,10 +188,10 @@ class ParentNestedScrollView @JvmOverloads constructor(
                     // 当我还可以滚动的时候，优先滚动我自己
                     val yDiffMotion = lastMotionYForInterceptTouchEvent - ev.y.toInt()
                     if (yDiffMotion > 0) { // 向上
-                        if ((yDiffMotion + scrollY) in state0Scroll..state2Scroll) {
+                        if ((yDiffMotion + scrollY) in verticalScrollRange()) {
                             Log.d(
                                 TAG,
-                                "[onInterceptTouchEvent] [return] $yDiffMotion $scrollY | $state0Scroll -- $state2Scroll"
+                                "[onInterceptTouchEvent] [return] $yDiffMotion $scrollY | ${verticalScrollRange()}"
                             )
                             lastMotionYForInterceptTouchEvent = ev.y.toInt()
                             return true
@@ -210,8 +209,8 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     private fun autoSettle(scrollY: Int, isDown: Boolean, reason: String) {
-        val up = openStateV2.second
-        val down = openStateV2.first
+        val up = openState.second
+        val down = openState.first
 
         val animateY = if (isDown) {
             stateList[down]
@@ -269,11 +268,11 @@ class ParentNestedScrollView @JvmOverloads constructor(
     override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
         super.onScrollChanged(l, t, oldl, oldt)
         findViewById<TextView>(R.id.headerTitle).text =
-            "header [s: $t] [s2: $openStateV2] [h: $height] [ch: ${firstView.height}]"
+            "header [s: $t] [s2: $openState] [h: $height] [ch: ${firstView.height}]"
     }
 
-    private fun verticalScrollRange(): Pair<Int, Int> {
-        return stateList[0] to stateList.last()
+    private fun verticalScrollRange(): IntRange {
+        return stateList[0]..stateList.last()
     }
 
     override fun onNestedPreScroll(
@@ -287,8 +286,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
         // scrollY 上 正 下 负
 
         if (dy > 0) { // 只处理向上滚动 —— 向上优先滚动外壳
-            val (low, high) = verticalScrollRange()
-            if (scrollY >= high) { // 外壳滚到最高了
+            if (scrollY >= verticalScrollRange().last) { // 外壳滚到最高了
                 doNestedPreScroll(dy, consumed, type)
             } else {
                 consumed[1] = dy
@@ -300,8 +298,8 @@ class ParentNestedScrollView @JvmOverloads constructor(
         parentWantToConsume: Int, consumed: IntArray, @NestedScrollType type: Int
     ) {
         val nextY = scrollY + parentWantToConsume
-        val maxNextY = state2Scroll
-        val minNextY = state0Scroll
+        val maxNextY = verticalScrollRange().last
+        val minNextY = verticalScrollRange().first
 
         val safeNextY = if (minNextY > maxNextY) {
             0
@@ -328,12 +326,12 @@ class ParentNestedScrollView @JvmOverloads constructor(
             }
 
             else -> {
-                if (y > state2Scroll) {
+                if (y > verticalScrollRange().last) {
                     stopFling()
                     autoSettle(scrollY, false, "scrollTo")
                     return
                 } else {
-                    if (y in state0Scroll..state2Scroll) {
+                    if (y in verticalScrollRange()) {
                         Log.d(TAG, "[scrollTo]#[true] $y ${firstView.height}")
                         originalScrollTo(x, y)
                     } else {
