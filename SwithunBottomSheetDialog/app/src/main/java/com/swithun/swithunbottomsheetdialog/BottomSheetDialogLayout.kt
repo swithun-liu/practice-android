@@ -188,7 +188,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                if (openState.first != openState.second) {
+                if (openState.first != openState.second && scrollY != stateList[openState.first]) {
                     // 下正
                     velocityTracker.computeCurrentVelocity(
                         1000,
