@@ -144,7 +144,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     private var disableTouch = false
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
-        Log.d(TAG, "[dispatchTouchEvent] ${ev?.y} ${ev?.actionMasked}")
+        Log.d(TAG, "「dispatchTouchEvent」 ${ev?.y} ${ev?.actionMasked}")
         when {
             ev.actionMasked == MotionEvent.ACTION_DOWN && ev.y + scrollY < verticalScrollRange().last -> {
                 disableTouch = true
@@ -260,7 +260,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         consumed: IntArray
     ) {
         // dy 负 向下
-        Log.i(TAG, "[onNestedScroll] $dyUnconsumed")
+        Log.i(TAG, "「onNestedScroll」 $dyUnconsumed")
         if (dyUnconsumed < 0) { // 向下
             when (type) {
 
@@ -298,18 +298,27 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     override fun onNestedPreScroll(
         target: View, dx: Int, dy: Int, consumed: IntArray, @NestedScrollType type: Int
     ) {
-        Log.i(
-            TAG,
-            "[onNestedPreScroll] [dy: $dy] [s: $scrollY]"
-        )
+        Log.i(TAG, "「onNestedPreScroll」 [dy: $dy] [s: $scrollY]")
         // dy 下 负数 上 正数
         // scrollY 上 正 下 负
 
-        if (dy > 0) { // 只处理向上滚动 —— 向上优先滚动外壳
-            if (scrollY >= verticalScrollRange().last) { // 外壳滚到最高了
-                doNestedPreScroll(dy, consumed, type)
-            } else {
-                consumed[1] = dy
+        when (type) {
+            ViewCompat.TYPE_NON_TOUCH -> {
+                // fling造成的不处理，内部自己滚
+            }
+
+            ViewCompat.TYPE_TOUCH -> {
+                if (scrollY >= stateList.last()) {
+                    // 外壳到顶了，先滚内部
+                } else {
+                    if (dy > 0) {
+                        // 手指下滑，优先滚内部，才会走到这里
+                        // 外壳没到顶，向上滚动，先滚外壳
+                        doNestedPreScroll(dy, consumed, type)
+                    } else {
+                        // 手指上滑，优先滚外壳，在onTouchEvent那里处理了，所有不会走到这里
+                    }
+                }
             }
         }
     }
