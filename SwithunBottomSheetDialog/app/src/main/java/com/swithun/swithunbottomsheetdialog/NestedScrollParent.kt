@@ -74,6 +74,8 @@ class ParentNestedScrollView @JvmOverloads constructor(
     private val overshootInterpolatorAnimator = ValueAnimator()
     private val overshootInterpolator = OvershootInterpolator(1f)
     private var activePointerId = INVALID_POINTER
+    protected var lastMotionForOnTouch = 0
+    protected var lastDownForOnTouch = 0
 
     init {
         this.post {
@@ -104,6 +106,24 @@ class ParentNestedScrollView @JvmOverloads constructor(
     override fun onNestedScrollAccepted(child: View, target: View, axes: Int, type: Int) {
         Log.i(TAG, "[onNestedScrollAccepted] $type")
         parentHelper.onNestedScrollAccepted(child, target, axes, type)
+    }
+
+
+    override fun onTouchEvent(event: MotionEvent): Boolean {
+        val touchY = event.y.toInt()
+        when (event.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                scrollCauser = ScrollCauser.NONE
+                lastDownForOnTouch = touchY
+                lastMotionForOnTouch = touchY
+            }
+            MotionEvent.ACTION_MOVE -> {
+                // 要滚多少
+                val moveY = lastMotionForOnTouch - touchY
+                scrollBy(0, moveY)
+            }
+        }
+        return true
     }
 
     override fun onStopNestedScroll(target: View, type: Int) {
@@ -317,7 +337,6 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
             else -> {
                 if (y > verticalScrollRange().last) {
-                    stopFling()
                     autoSettle(scrollY, false, "scrollTo")
                     return
                 } else {
@@ -331,23 +350,6 @@ class ParentNestedScrollView @JvmOverloads constructor(
 
             }
         }
-    }
-
-    override fun fling(fl: Float) {
-//        if (openState.first != openState.second) {
-//            // 下正
-//            if (fl> 0) { // 速度向下
-//                autoSettle(scrollY, true, "")
-//            } else if (fl < 0) { // 速度向上
-//                autoSettle(scrollY, false, "")
-//            } else { // 速度为0
-//                if (Math.abs(scrollY - openState.first) > Math.abs(scrollY - openState.second)) {
-//                    autoSettle(scrollY, true, "")
-//                } else {
-//                    autoSettle(scrollY, false, "")
-//                }
-//            }
-//        }
     }
 
     private fun settle(fl: Float) {
