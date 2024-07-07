@@ -8,7 +8,7 @@ import android.widget.TextView
 import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 
-class BottomSheetDialog: DialogFragment() {
+abstract class BottomSheetDialog: DialogFragment() {
 
     private var contentView: View? = null
 
@@ -21,9 +21,18 @@ class BottomSheetDialog: DialogFragment() {
         container: ViewGroup?,
         savedInstanceState: Bundle?
     ): View? {
-        contentView = inflater.inflate(R.layout.bottom_sheet_dialog, container, false)
+        val contentViewWrapper = inflater.inflate(R.layout.bottom_sheet_dialog_layout, container, false)
+        contentView = contentViewWrapper
+        onCreateContentView(inflater, contentViewWrapper as ViewGroup, savedInstanceState)
+        (contentViewWrapper as BottomSheetDialogLayout).init()
         return contentView
     }
+
+    abstract fun onCreateContentView(
+        inflater: LayoutInflater,
+        contentViewWrapper: ViewGroup,
+        savedInstanceState: Bundle?
+    )
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)

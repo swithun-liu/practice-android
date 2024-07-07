@@ -99,7 +99,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
 
     private var activePointerId = INVALID_POINTER
 
-    init {
+    fun init() {
         this.post {
             scrollTo(scrollX, stateList[0])
         }
@@ -302,12 +302,6 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         type: Int
     ) {
         Log.i(TAG, "[onNestedScroll]2")
-    }
-
-    override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
-        super.onScrollChanged(l, t, oldl, oldt)
-        findViewById<TextView>(R.id.headerTitle).text =
-            "header [s: $t] [s2: $openState] [h: $height] [ch: ${firstView.height}]"
     }
 
     private fun verticalScrollRange(): IntRange {
