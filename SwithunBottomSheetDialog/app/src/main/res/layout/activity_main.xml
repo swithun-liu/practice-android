@@ -9,6 +9,18 @@
     tools:context=".MainActivity">
 
     <TextView
+        android:id="@+id/BDMaterial0"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="BDMaterial0"/>
+
+    <TextView
+        android:id="@+id/BDMaterial1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="BDMaterial1"/>
+
+    <TextView
         android:id="@+id/BD0"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
@@ -24,7 +36,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
 
-        app:constraint_referenced_ids="BD0, BD1"
+        app:constraint_referenced_ids="BDMaterial0, BDMaterial1, BD0, BD1"
 
         android:orientation="vertical"
 

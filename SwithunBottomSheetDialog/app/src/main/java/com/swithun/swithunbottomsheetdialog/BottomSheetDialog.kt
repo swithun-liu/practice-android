@@ -34,14 +34,4 @@ abstract class BottomSheetDialog: DialogFragment() {
         savedInstanceState: Bundle?
     )
 
-    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
-        super.onViewCreated(view, savedInstanceState)
-        (contentView as? ViewGroup)?.findViewById<TextView>(R.id.testClick)?.setOnClickListener {
-            Toast.makeText(contentView!!.context, "hahah", Toast.LENGTH_SHORT).show()
-        }
-        (contentView as? ViewGroup)?.findViewById<TextView>(R.id.clickButton)?.setOnClickListener {
-            Toast.makeText(contentView!!.context, "hahah", Toast.LENGTH_SHORT).show()
-        }
-    }
-
 }

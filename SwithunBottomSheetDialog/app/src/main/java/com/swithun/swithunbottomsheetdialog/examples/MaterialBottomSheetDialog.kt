@@ -6,18 +6,18 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.TextView
 import android.widget.Toast
-import com.swithun.swithunbottomsheetdialog.BottomSheetDialog
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.swithun.swithunbottomsheetdialog.R
 
-class BottomSheetDialog0: BottomSheetDialog() {
-    override fun onCreateContentView(
-        inflater: LayoutInflater,
-        contentViewWrapper: ViewGroup,
-        savedInstanceState: Bundle?
-    ) {
-        inflater.inflate(R.layout.bottom_sheet_dialog_0, contentViewWrapper, true)
-    }
+class MaterialBottomSheetDialog: BottomSheetDialogFragment() {
 
+    override fun onCreateView(
+        inflater: LayoutInflater,
+        container: ViewGroup?,
+        savedInstanceState: Bundle?
+    ): View? {
+        return inflater.inflate(R.layout.bottom_sheet_dialog_0, container, false)
+    }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
@@ -28,4 +28,5 @@ class BottomSheetDialog0: BottomSheetDialog() {
             Toast.makeText(view.context, "hahah", Toast.LENGTH_SHORT).show()
         }
     }
+
 }

@@ -6,8 +6,11 @@ import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
+import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.swithun.swithunbottomsheetdialog.examples.BottomSheetDialog0
 import com.swithun.swithunbottomsheetdialog.examples.BottomSheetDialog1
+import com.swithun.swithunbottomsheetdialog.examples.MaterialBottomSheetDialog
+import com.swithun.swithunbottomsheetdialog.examples.MaterialBottomSheetDialog1
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -20,6 +23,12 @@ class MainActivity : AppCompatActivity() {
             insets
         }
 
+        findViewById<TextView>(R.id.BDMaterial0).setOnClickListener {
+            MaterialBottomSheetDialog().show(supportFragmentManager, "bottom")
+        }
+        findViewById<TextView>(R.id.BDMaterial1).setOnClickListener {
+            MaterialBottomSheetDialog1().show(supportFragmentManager, "bottom")
+        }
         findViewById<TextView>(R.id.BD0).setOnClickListener {
             BottomSheetDialog0().show(supportFragmentManager, "bottom")
         }
