@@ -112,22 +112,24 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     override fun onTouchEvent(event: MotionEvent): Boolean {
+        Log.d(TAG, "「onTouchEvent」 [t: ${event.actionMasked}] [y: ${event.y}]")
         val touchY = event.y.toInt()
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                initScrollState(touchY)
+                recordDownForOnTouchEvent(touchY)
             }
             MotionEvent.ACTION_MOVE -> {
                 // 要滚多少
                 val moveY = lastMotionForOnTouch - touchY
                 scrollCauser = ScrollCauser.USER_TOUCH
                 scrollBy(0, moveY)
+                lastMotionForOnTouch = touchY
             }
         }
         return true
     }
 
-    private fun initScrollState(touchY: Int) {
+    private fun recordDownForOnTouchEvent(touchY: Int) {
         scrollCauser = ScrollCauser.NONE
         overshootInterpolatorAnimator.cancel()
         lastDownForOnTouch = touchY
@@ -191,12 +193,13 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
-        Log.d(TAG, "[onInterceptTouchEvent] ${ev.y} ${ev.actionMasked}")
+        Log.d(TAG, "「onInterceptTouchEvent」 [t: ${ev.actionMasked}] [y: ${ev.y}]")
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 // 记录Down
                 lastDownYForInterceptEvent = ev.y.toInt()
-                initScrollState(ev.y.toInt())
+                // 帮[onTouchEvent]记录一下
+                recordDownForOnTouchEvent(ev.y.toInt())
             }
 
             MotionEvent.ACTION_MOVE -> {
