@@ -9,6 +9,7 @@ import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
 import android.view.animation.OvershootInterpolator
+import android.widget.FrameLayout
 import android.widget.TextView
 import androidx.core.view.NestedScrollingParent3
 import androidx.core.view.NestedScrollingParentHelper
@@ -20,10 +21,12 @@ import kotlin.math.abs
 
 class ParentNestedScrollView @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : ChildNestedScrollView(context, attrs, defStyleAttr), NestedScrollingParent3 {
+) : FrameLayout(context, attrs, defStyleAttr), NestedScrollingParent3 {
 
     private var lastMotionYForInterceptTouchEvent = 0
     private var lastDownYForInterceptEvent: Int = 0
+
+    protected var scrollCauser: ScrollCauser = ScrollCauser.NONE
 
     // scroll下负
     private val state0Scroll
@@ -108,22 +111,27 @@ class ParentNestedScrollView @JvmOverloads constructor(
         parentHelper.onNestedScrollAccepted(child, target, axes, type)
     }
 
-
     override fun onTouchEvent(event: MotionEvent): Boolean {
         val touchY = event.y.toInt()
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-                scrollCauser = ScrollCauser.NONE
-                lastDownForOnTouch = touchY
-                lastMotionForOnTouch = touchY
+                initScrollState(touchY)
             }
             MotionEvent.ACTION_MOVE -> {
                 // 要滚多少
                 val moveY = lastMotionForOnTouch - touchY
+                scrollCauser = ScrollCauser.USER_TOUCH
                 scrollBy(0, moveY)
             }
         }
         return true
+    }
+
+    private fun initScrollState(touchY: Int) {
+        scrollCauser = ScrollCauser.NONE
+        overshootInterpolatorAnimator.cancel()
+        lastDownForOnTouch = touchY
+        lastMotionForOnTouch = touchY
     }
 
     override fun onStopNestedScroll(target: View, type: Int) {
@@ -188,6 +196,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 // 记录Down
                 lastDownYForInterceptEvent = ev.y.toInt()
+                initScrollState(ev.y.toInt())
             }
 
             MotionEvent.ACTION_MOVE -> {
@@ -230,8 +239,6 @@ class ParentNestedScrollView @JvmOverloads constructor(
         Log.d(TAG, "[autoSettle] [up: $up] [down: $down] [isD: $isDown] [toY: $animateY]")
 
         scrollCauser = AUTO_SETTLE
-        mScroller.abortAnimation()
-        stopNestedScroll(ViewCompat.TYPE_NON_TOUCH)
 
         setAnimatedValue { AnimateValue(scrollY, animateY) }
         overshootInterpolatorAnimator.cancel()
@@ -331,7 +338,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
         Log.d(TAG, "[scrollTo] $y $scrollCauser")
         when {
             scrollCauser == AUTO_SETTLE -> {
-                originalScrollTo(x, y)
+                super.scrollTo(x, y)
                 return
             }
 
@@ -342,7 +349,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
                 } else {
                     if (y in verticalScrollRange()) {
                         Log.d(TAG, "[scrollTo]#[true] $y ${firstView.height}")
-                        originalScrollTo(x, y)
+                        super.scrollTo(x, y)
                     } else {
                         Log.d(TAG, "[scrollTo]#[false] $y ${firstView.height}")
                     }
@@ -377,6 +384,12 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     object AUTO_SETTLE : ScrollCauser
+
+    interface ScrollCauser {
+        object NONE : ScrollCauser
+
+        object USER_TOUCH : ScrollCauser
+    }
 
     companion object {
         private const val TAG = "ParentNestedScrollView"
