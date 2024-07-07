@@ -8,100 +8,92 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="100dp"
         android:background="#00000000"
         android:orientation="vertical">
 
-        <LinearLayout
+        <TextView
+            android:id="@+id/headerTitle"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:orientation="vertical">
+            android:text="header" />
 
-            <TextView
-                android:id="@+id/headerTitle"
+        <androidx.core.widget.NestedScrollView
+            android:layout_width="wrap_content"
+            android:layout_height="900dp">
+
+            <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:text="header" />
+                android:orientation="vertical">
 
-            <androidx.core.widget.NestedScrollView
-                android:layout_width="wrap_content"
-                android:layout_height="900dp">
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"
+                    android:background="#F44336" />
 
-                <LinearLayout
+                <TextView
+                    android:id="@+id/testClick"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:orientation="vertical">
+                    android:layout_height="match_parent"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:text="点点我点我点我点我点我点我点我点我点我点我点我我" />
 
-                    <View
-                        android:layout_width="wrap_content"
-                        android:layout_height="300dp"
-                        android:background="#F44336" />
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"
+                    android:background="#E91E63" />
 
-                    <TextView
-                        android:id="@+id/testClick"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:clickable="true"
-                        android:focusable="true"
-                        android:text="点点我点我点我点我点我点我点我点我点我点我点我我" />
+                <Button
+                    android:id="@+id/clickButton"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="我是button" />
 
-                    <View
-                        android:layout_width="wrap_content"
-                        android:layout_height="300dp"
-                        android:background="#E91E63" />
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"
+                    android:background="#9C27B0" />
 
-                    <Button
-                        android:id="@+id/clickButton"
-                        android:layout_width="match_parent"
-                        android:layout_height="match_parent"
-                        android:text="我是button" />
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"
+                    android:background="#3F51B5" />
 
-                    <View
-                        android:layout_width="wrap_content"
-                        android:layout_height="300dp"
-                        android:background="#9C27B0" />
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"
+                    android:background="#2196F3" />
 
-                    <View
-                        android:layout_width="wrap_content"
-                        android:layout_height="300dp"
-                        android:background="#3F51B5" />
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"
+                    android:background="#F44336" />
 
-                    <View
-                        android:layout_width="wrap_content"
-                        android:layout_height="300dp"
-                        android:background="#2196F3" />
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"
+                    android:background="#E91E63" />
 
-                    <View
-                        android:layout_width="wrap_content"
-                        android:layout_height="300dp"
-                        android:background="#F44336" />
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"
+                    android:background="#9C27B0" />
 
-                    <View
-                        android:layout_width="wrap_content"
-                        android:layout_height="300dp"
-                        android:background="#E91E63" />
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"
+                    android:background="#3F51B5" />
 
-                    <View
-                        android:layout_width="wrap_content"
-                        android:layout_height="300dp"
-                        android:background="#9C27B0" />
+                <View
+                    android:layout_width="wrap_content"
+                    android:layout_height="300dp"
+                    android:background="#2196F3" />
 
-                    <View
-                        android:layout_width="wrap_content"
-                        android:layout_height="300dp"
-                        android:background="#3F51B5" />
+            </LinearLayout>
 
-                    <View
-                        android:layout_width="wrap_content"
-                        android:layout_height="300dp"
-                        android:background="#2196F3" />
-
-                </LinearLayout>
-
-            </androidx.core.widget.NestedScrollView>
-
-        </LinearLayout>
-
+        </androidx.core.widget.NestedScrollView>
 
     </LinearLayout>
 

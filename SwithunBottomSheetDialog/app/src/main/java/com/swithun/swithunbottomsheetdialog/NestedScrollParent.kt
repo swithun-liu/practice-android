@@ -44,12 +44,28 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
 
     private val state2Scroll get() = 0
 
-    private val stateList
+    private val wantStateList
         get() = listOf(
             state0Scroll, // -2691
             state1Scroll, // -1000
             state2Scroll // 0
         )
+
+    private val stateList : List<Int>
+        get() {
+            val firstView = firstView ?: return wantStateList
+            val fcHeight = firstView.height
+            val list = mutableListOf<Int>()
+            for (i in wantStateList.indices) {
+                if (-(height - fcHeight) > wantStateList[i]) {
+                    list.add(wantStateList[i])
+                }
+            }
+            if (list.size < wantStateList.size) {
+                list.add(-(height - fcHeight))
+            }
+            return list
+        }
 
     /** <当前State，更高的State> */
     private val openState: Pair<Int, Int>
@@ -84,6 +100,9 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     private var activePointerId = INVALID_POINTER
 
     init {
+        this.post {
+            scrollTo(scrollX, stateList[0])
+        }
         autoSettleAnimator.addUpdateListener {
             val process = (it.animatedValue as Float)
             val passed = (animateStartY2EndY.endY - animateStartY2EndY.startY) * process
