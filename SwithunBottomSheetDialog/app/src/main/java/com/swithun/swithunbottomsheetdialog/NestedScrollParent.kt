@@ -146,17 +146,7 @@ class ParentNestedScrollView @JvmOverloads constructor(
                         ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat()
                     )
                     val initialVelocity: Float = velocityTracker.getYVelocity(activePointerId)
-                    if (initialVelocity > 0) { // 速度向下
-                        autoSettle(scrollY, true, "")
-                    } else if (initialVelocity < 0) { // 速度向上
-                        autoSettle(scrollY, false, "")
-                    } else { // 速度为0
-                        if (Math.abs(scrollY - openState.first) > Math.abs(scrollY - openState.second)) {
-                            autoSettle(scrollY, true, "")
-                        } else {
-                            autoSettle(scrollY, false, "")
-                        }
-                    }
+                    settle(initialVelocity)
                 }
                 activePointerId = INVALID_POINTER
             }
@@ -344,9 +334,35 @@ class ParentNestedScrollView @JvmOverloads constructor(
     }
 
     override fun fling(fl: Float) {
-        if (scrollCauser != AUTO_SETTLE) {
-            super.fling(fl)
-        }
+//        if (openState.first != openState.second) {
+//            // 下正
+//            if (fl> 0) { // 速度向下
+//                autoSettle(scrollY, true, "")
+//            } else if (fl < 0) { // 速度向上
+//                autoSettle(scrollY, false, "")
+//            } else { // 速度为0
+//                if (Math.abs(scrollY - openState.first) > Math.abs(scrollY - openState.second)) {
+//                    autoSettle(scrollY, true, "")
+//                } else {
+//                    autoSettle(scrollY, false, "")
+//                }
+//            }
+//        }
+    }
+
+    private fun settle(fl: Float) {
+            // 下正
+            if (fl> 0) { // 速度向下
+                autoSettle(scrollY, true, "")
+            } else if (fl < 0) { // 速度向上
+                autoSettle(scrollY, false, "")
+            } else { // 速度为0
+                if (Math.abs(scrollY - openState.first) > Math.abs(scrollY - openState.second)) {
+                    autoSettle(scrollY, true, "")
+                } else {
+                    autoSettle(scrollY, false, "")
+                }
+            }
     }
 
     data class AnimateValue(

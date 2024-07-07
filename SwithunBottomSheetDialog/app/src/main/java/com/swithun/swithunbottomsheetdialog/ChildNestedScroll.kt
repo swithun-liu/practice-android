@@ -19,9 +19,9 @@ open class ChildNestedScrollView @JvmOverloads constructor(
 
     protected var lastMotionForOnTouch = 0
 
-    private var scrollConsumed = IntArray(2)
-    private var scrollOffset = IntArray(2)
-    private val childHelper by lazy {
+    protected var scrollConsumed = IntArray(2)
+    protected var scrollOffset = IntArray(2)
+    protected val childHelper by lazy {
         NestedScrollingChildHelper(this).apply { isNestedScrollingEnabled = true }
     }
     private var activePointerId = INVALID_POINTER
