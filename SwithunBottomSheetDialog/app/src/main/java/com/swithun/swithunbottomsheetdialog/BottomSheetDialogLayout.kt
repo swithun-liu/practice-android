@@ -1,7 +1,6 @@
 package com.swithun.swithunbottomsheetdialog
 
 import android.animation.ValueAnimator
-import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Rect
 import android.util.AttributeSet
@@ -25,8 +24,11 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
 ) : FrameLayout(context, attrs, defStyleAttr), NestedScrollingParent3 {
 
-    val state1ParentTopDistance = 1000
+    /** 第一个View */
+    private val firstView: View?
+        get() = children.firstOrNull()
 
+    //// Event 记录
     /** [onTouchEvent]记录上一个EventY */
     private var lastMotionYForOnTouchEvent = 0
 
@@ -42,31 +44,47 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     /** 造成滚动的原因 */
     private var scrollCauser: ScrollCauser = ScrollCauser.NONE
 
-    private val state0Scroll get() = -height + 200
+    //// 吸附位置
+    /** 默认的最低吸附位置 */
+    private val stateLowest get() = -height
+    /** 默认的最高吸附位置 */
+    private val stateHighest get() = 0
 
-    private val state1Scroll get() = -state1ParentTopDistance
+    /** 自定义的吸附位置列表 */
+    var customStateList: List<CustomHeight>? = null
 
-    private val state2Scroll get() = 0
+    /** 想要的吸附位置列表 */
+    private val wantStateList: List<Int>
+        get() {
+            val custom: List<CustomHeight>? = customStateList
+            return custom?.map {
+                when (it) {
+                    is CustomHeight.Bottom -> stateLowest + it.add
+                    CustomHeight.Highest -> stateHighest
+                    is CustomHeight.Number -> -it.value
+                    is CustomHeight.Percent -> (stateLowest * it.f).toInt()
+                }
+            } ?: listOf(
+                stateLowest + 200, // -2691
+                (stateLowest * 0.4).toInt(), // -1000
+                stateHighest // 0
+            )
+        }
 
-    private val wantStateList
-        get() = listOf(
-            state0Scroll, // -2691
-            state1Scroll, // -1000
-            state2Scroll // 0
-        )
-
-    private val stateList: List<Int>
+    /** 当contentView太矮可能无法满足[wantStateList]，需要check一下 */
+    private val safeStateList: List<Int>
         get() {
             val firstView = firstView ?: return wantStateList
-            val fcHeight = firstView.height
+            val firstViewHeight = firstView.height
             val list = mutableListOf<Int>()
-            for (i in wantStateList.indices) {
-                if (-(height - fcHeight) > wantStateList[i]) {
-                    list.add(wantStateList[i])
+            val sortedStateList = wantStateList.sorted()
+            for (i in sortedStateList.indices) {
+                if (-(height - firstViewHeight) > sortedStateList[i]) {
+                    list.add(sortedStateList[i])
                 }
             }
-            if (list.size < wantStateList.size) {
-                list.add(-(height - fcHeight))
+            if (list.size < sortedStateList.size) {
+                list.add(-(height - firstViewHeight))
             }
             return list
         }
@@ -74,9 +92,9 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     /** <当前State，更高的State> */
     private val openState: Pair<Int, Int>
         get() {
-            var oldState = stateList.size - 1
-            for (i in stateList.indices.reversed()) {
-                if (scrollY >= stateList[i]) {
+            var oldState = safeStateList.size - 1
+            for (i in safeStateList.indices.reversed()) {
+                if (scrollY >= safeStateList[i]) {
                     return i to oldState
                 }
                 oldState = i
@@ -88,24 +106,19 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         NestedScrollingParentHelper(this)
     }
 
+    /// fling 检测
     private val velocityTracker = VelocityTracker.obtain()
+    private var activePointerId = INVALID_POINTER
 
-    /** 第一个View */
-    private val firstView by lazy {
-        children.first()
-    }
-
+    // autoSettle动画相关
     private var animateStartY2EndY = AnimateValue(0, 0)
-
     private val autoSettleAnimator = ValueAnimator().also {
         it.interpolator = OvershootInterpolator(1f)
     }
 
-    private var activePointerId = INVALID_POINTER
-
     fun init() {
         this.post {
-            scrollTo(scrollX, stateList[0])
+            scrollTo(scrollX, safeStateList[0])
         }
         autoSettleAnimator.addUpdateListener {
             val process = (it.animatedValue as Float)
@@ -193,7 +206,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
             }
 
             MotionEvent.ACTION_UP, MotionEvent.ACTION_CANCEL -> {
-                if (openState.first != openState.second && scrollY != stateList[openState.first]) {
+                if (openState.first != openState.second && scrollY != safeStateList[openState.first]) {
                     // 下正
                     velocityTracker.computeCurrentVelocity(
                         1000, ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat()
@@ -215,7 +228,6 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         touchSlop = configuration.scaledTouchSlop
     }
 
-    @SuppressLint("RestrictedApi")
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         Log.d(TAG, "「onInterceptTouchEvent」 [t: ${ev.actionMasked}] [y: ${ev.y}]")
         when (ev.actionMasked) {
@@ -244,8 +256,12 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
                         }
                     } else if (yDiffMotion < 0) { // 向下
 
-                        fun isTouchNestedScrollChild(parent: ViewGroup, child: View, x: Int, y: Int): Boolean {
-                            fun isMeTouchNestedScrollChild(parent: ViewGroup, child: View, x: Int, y: Int): Boolean {
+                        fun isTouchNestedScrollChild(
+                            parent: ViewGroup, child: View, x: Int, y: Int
+                        ): Boolean {
+                            fun isMeTouchNestedScrollChild(
+                                parent: ViewGroup, child: View, x: Int, y: Int
+                            ): Boolean {
                                 val r = Rect()
                                 val offsetX = parent.scrollX - child.left
                                 val offsetY = parent.scrollY - child.top
@@ -257,7 +273,10 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
                                 r.right = child.right
                                 r.bottom = child.bottom
 
-                                Log.d(TAG, "isMeTouchNestedScrollChild: p: $parent c: $child x: $x y: $y sY: ${parent.scrollX} t: ${child.top}")
+                                Log.d(
+                                    TAG,
+                                    "isMeTouchNestedScrollChild: p: $parent c: $child x: $x y: $y sY: ${parent.scrollX} t: ${child.top}"
+                                )
 
                                 val contain = r.contains(newX, newY)
                                 val nestedScrollChild = child.isNestedScrollingEnabled
@@ -269,10 +288,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
                             }
 
                             return isMeTouchNestedScrollChild(
-                                parent,
-                                child,
-                                x,
-                                y
+                                parent, child, x, y
                             ) || (child is ViewGroup && child.children.any { childChild ->
 
                                 val offsetX = parent.scrollX - child.left
@@ -285,7 +301,10 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
                         }
 
                         children.forEach { child ->
-                            if (!isTouchNestedScrollChild(this, child, ev.x.toInt(), ev.y.toInt())) {
+                            if (!isTouchNestedScrollChild(
+                                    this, child, ev.x.toInt(), ev.y.toInt()
+                                )
+                            ) {
                                 return true
                             }
                         }
@@ -301,14 +320,14 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         return super.onInterceptTouchEvent(ev) // 不拦截触摸事件，传递给子视图
     }
 
-    private fun autoSettle(scrollY: Int, isDown: Boolean, reason: String) {
+    private fun doSettle(scrollY: Int, isDown: Boolean, reason: String) {
         val up = openState.second
         val down = openState.first
 
         val animateY = if (isDown) {
-            stateList[down]
+            safeStateList[down]
         } else {
-            stateList[up]
+            safeStateList[up]
         }
         Log.d(TAG, "[autoSettle] [up: $up] [down: $down] [isD: $isDown] [toY: $animateY]")
 
@@ -357,7 +376,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     }
 
     private fun verticalScrollRange(): IntRange {
-        return stateList[0]..stateList.last()
+        return safeStateList[0]..safeStateList.last()
     }
 
     override fun onNestedPreScroll(
@@ -373,7 +392,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
             }
 
             ViewCompat.TYPE_TOUCH -> {
-                if (scrollY >= stateList.last()) {
+                if (scrollY >= safeStateList.last()) {
                     // 外壳到顶了，先滚内部
                 } else {
                     if (dy > 0) {
@@ -404,7 +423,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         when (val safePrentWantToConsume = safeNextY - scrollY) {
             0 -> Log.i(TAG, "[doNestedPreScroll]#false ($type)")
             else -> {
-                Log.i(TAG, "[doNestedPreScroll]#true ($type) ${scrollY} ${firstView.height}")
+                Log.i(TAG, "[doNestedPreScroll]#true ($type) ${scrollY} ${firstView?.height}")
                 consumed[1] = safePrentWantToConsume
                 scrollBy(0, safePrentWantToConsume)
             }
@@ -421,14 +440,14 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
 
             else -> {
                 if (y > verticalScrollRange().last) {
-                    autoSettle(scrollY, false, "scrollTo")
+                    doSettle(scrollY, false, "scrollTo")
                     return
                 } else {
                     if (y in verticalScrollRange()) {
-                        Log.d(TAG, "[scrollTo]#[true] $y ${firstView.height}")
+                        Log.d(TAG, "[scrollTo]#[true] $y ${firstView?.height}")
                         super.scrollTo(x, y)
                     } else {
-                        Log.d(TAG, "[scrollTo]#[false] $y ${firstView.height}")
+                        Log.d(TAG, "[scrollTo]#[false] $y ${firstView?.height}")
                     }
                 }
 
@@ -439,14 +458,14 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     private fun settle(fl: Float) {
         // 下正
         if (fl > 0) { // 速度向下
-            autoSettle(scrollY, true, "")
+            doSettle(scrollY, true, "")
         } else if (fl < 0) { // 速度向上
-            autoSettle(scrollY, false, "")
+            doSettle(scrollY, false, "")
         } else { // 速度为0
             if (Math.abs(scrollY - openState.first) > Math.abs(scrollY - openState.second)) {
-                autoSettle(scrollY, true, "")
+                doSettle(scrollY, true, "")
             } else {
-                autoSettle(scrollY, false, "")
+                doSettle(scrollY, false, "")
             }
         }
     }
@@ -467,6 +486,14 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
 
         object AUTO_SETTLE : ScrollCauser
     }
+
+    sealed interface CustomHeight {
+        class Number(val value: Int) : CustomHeight
+        class Percent(val f: Float) : CustomHeight
+        class Bottom(val add: Int) : CustomHeight
+        data object Highest : CustomHeight
+    }
+
 
     companion object {
         private const val TAG = "ParentNestedScrollView"

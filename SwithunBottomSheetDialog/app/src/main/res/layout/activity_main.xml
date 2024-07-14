@@ -1,49 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:app="http://schemas.android.com/apk/res-auto"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#BDFF93"
+    android:orientation="vertical"
     tools:context=".MainActivity">
 
-    <TextView
-        android:id="@+id/BDMaterial0"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="BDMaterial0"/>
-
-    <TextView
-        android:id="@+id/BDMaterial1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="BDMaterial1"/>
-
-    <TextView
-        android:id="@+id/BD0"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="BD0"/>
-
-    <TextView
-        android:id="@+id/BD1"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="BD0"/>
-
-    <androidx.constraintlayout.helper.widget.Flow
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-
-        app:constraint_referenced_ids="BDMaterial0, BDMaterial1, BD0, BD1"
-
-        android:orientation="vertical"
-
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintBottom_toBottomOf="parent"
-        />
-
-</androidx.constraintlayout.widget.ConstraintLayout>
+</LinearLayout>

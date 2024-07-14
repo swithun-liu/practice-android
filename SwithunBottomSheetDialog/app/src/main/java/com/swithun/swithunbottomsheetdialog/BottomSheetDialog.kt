@@ -4,8 +4,6 @@ import android.os.Bundle
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.TextView
-import android.widget.Toast
 import androidx.fragment.app.DialogFragment
 
 abstract class BottomSheetDialog: DialogFragment() {
@@ -23,14 +21,14 @@ abstract class BottomSheetDialog: DialogFragment() {
     ): View? {
         val contentViewWrapper = inflater.inflate(R.layout.bottom_sheet_dialog_layout, container, false)
         contentView = contentViewWrapper
-        onCreateContentView(inflater, contentViewWrapper as ViewGroup, savedInstanceState)
-        (contentViewWrapper as BottomSheetDialogLayout).init()
+        onCreateContentView(inflater, contentViewWrapper as BottomSheetDialogLayout, savedInstanceState)
+        contentViewWrapper.init()
         return contentView
     }
 
     abstract fun onCreateContentView(
         inflater: LayoutInflater,
-        contentViewWrapper: ViewGroup,
+        contentViewWrapper: BottomSheetDialogLayout,
         savedInstanceState: Bundle?
     )
 

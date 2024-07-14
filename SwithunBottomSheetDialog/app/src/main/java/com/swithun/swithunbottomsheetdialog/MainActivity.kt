@@ -1,16 +1,18 @@
 package com.swithun.swithunbottomsheetdialog
 
+import android.content.Context
 import android.os.Bundle
-import android.widget.TextView
+import android.view.View
+import android.widget.Button
+import android.widget.LinearLayout
 import androidx.activity.enableEdgeToEdge
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.view.ViewCompat
 import androidx.core.view.WindowInsetsCompat
-import com.google.android.material.bottomsheet.BottomSheetDialogFragment
 import com.swithun.swithunbottomsheetdialog.examples.BottomSheetDialog0
 import com.swithun.swithunbottomsheetdialog.examples.BottomSheetDialog1
-import com.swithun.swithunbottomsheetdialog.examples.MaterialBottomSheetDialog
-import com.swithun.swithunbottomsheetdialog.examples.MaterialBottomSheetDialog1
+import com.swithun.swithunbottomsheetdialog.examples.BottomSheetDialog2
+import com.swithun.swithunbottomsheetdialog.examples.BottomSheetDialog3
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -22,18 +24,28 @@ class MainActivity : AppCompatActivity() {
             v.setPadding(systemBars.left, systemBars.top, systemBars.right, systemBars.bottom)
             insets
         }
+        listOf(
+            generateButton(this, "0") { BottomSheetDialog0() },
+            generateButton(this, "1") { BottomSheetDialog1() },
+            generateButton(this, "2") { BottomSheetDialog2() },
+            generateButton(this, "3") { BottomSheetDialog3() },
+        ).forEach { bt ->
+            this.findViewById<LinearLayout>(R.id.main).also { main ->
+                main.addView(bt)
+            }
+        }
+    }
 
-        findViewById<TextView>(R.id.BDMaterial0).setOnClickListener {
-            MaterialBottomSheetDialog().show(supportFragmentManager, "bottom")
-        }
-        findViewById<TextView>(R.id.BDMaterial1).setOnClickListener {
-            MaterialBottomSheetDialog1().show(supportFragmentManager, "bottom")
-        }
-        findViewById<TextView>(R.id.BD0).setOnClickListener {
-            BottomSheetDialog0().show(supportFragmentManager, "bottom")
-        }
-        findViewById<TextView>(R.id.BD1).setOnClickListener {
-            BottomSheetDialog1().show(supportFragmentManager, "bottom")
+    private fun generateButton(
+        context: Context,
+        name: String,
+        dialogBuilder: () -> BottomSheetDialog
+    ): View {
+        return Button(context).also {
+            it.text = name
+            it.setOnClickListener {
+                dialogBuilder().show(supportFragmentManager, name)
+            }
         }
     }
 }
