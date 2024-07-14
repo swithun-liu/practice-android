@@ -13,8 +13,6 @@ import android.view.ViewConfiguration
 import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
-import android.widget.TextView
-import androidx.coordinatorlayout.widget.ViewGroupUtils
 import androidx.core.view.NestedScrollingParent3
 import androidx.core.view.NestedScrollingParentHelper
 import androidx.core.view.ViewCompat
@@ -314,7 +312,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         }
         Log.d(TAG, "[autoSettle] [up: $up] [down: $down] [isD: $isDown] [toY: $animateY]")
 
-        scrollCauser = AUTO_SETTLE
+        scrollCauser = ScrollCauser.AUTO_SETTLE
 
         setAnimatedValue { AnimateValue(scrollY, animateY) }
         autoSettleAnimator.cancel()
@@ -416,7 +414,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     override fun scrollTo(x: Int, y: Int) {
         Log.d(TAG, "[scrollTo] $y $scrollCauser")
         when {
-            scrollCauser == AUTO_SETTLE -> {
+            scrollCauser == ScrollCauser.AUTO_SETTLE -> {
                 super.scrollTo(x, y)
                 return
             }
@@ -462,12 +460,12 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         this.animateStartY2EndY = reducer(this.animateStartY2EndY)
     }
 
-    object AUTO_SETTLE : ScrollCauser
-
     interface ScrollCauser {
         object NONE : ScrollCauser
 
         object USER_TOUCH : ScrollCauser
+
+        object AUTO_SETTLE : ScrollCauser
     }
 
     companion object {
