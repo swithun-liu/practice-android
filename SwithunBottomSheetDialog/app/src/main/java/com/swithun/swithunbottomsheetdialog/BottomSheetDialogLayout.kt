@@ -1,16 +1,20 @@
 package com.swithun.swithunbottomsheetdialog
 
 import android.animation.ValueAnimator
+import android.annotation.SuppressLint
 import android.content.Context
+import android.graphics.Rect
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
+import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
 import android.widget.TextView
+import androidx.coordinatorlayout.widget.ViewGroupUtils
 import androidx.core.view.NestedScrollingParent3
 import androidx.core.view.NestedScrollingParentHelper
 import androidx.core.view.ViewCompat
@@ -27,11 +31,13 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
 
     /** [onTouchEvent]记录上一个EventY */
     private var lastMotionYForOnTouchEvent = 0
+
     /** [onTouchEvent]记录上一个DownEventY */
     private var lastDownYForOnTouchEvent = 0
 
     /** [onInterceptTouchEvent]记录上一个EventY */
     private var lastMotionYForInterceptTouchEvent = 0
+
     /** [onInterceptTouchEvent]记录上一个DownEventY */
     private var lastDownYForInterceptEvent: Int = 0
 
@@ -51,7 +57,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
             state2Scroll // 0
         )
 
-    private val stateList : List<Int>
+    private val stateList: List<Int>
         get() {
             val firstView = firstView ?: return wantStateList
             val fcHeight = firstView.height
@@ -137,6 +143,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
             MotionEvent.ACTION_DOWN -> {
                 recordDownForOnTouchEvent(touchY)
             }
+
             MotionEvent.ACTION_MOVE -> {
                 // 要滚多少
                 val moveY = lastMotionYForOnTouchEvent - touchY
@@ -191,8 +198,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
                 if (openState.first != openState.second && scrollY != stateList[openState.first]) {
                     // 下正
                     velocityTracker.computeCurrentVelocity(
-                        1000,
-                        ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat()
+                        1000, ViewConfiguration.get(context).scaledMaximumFlingVelocity.toFloat()
                     )
                     val initialVelocity: Float = velocityTracker.getYVelocity(activePointerId)
                     settle(initialVelocity)
@@ -211,6 +217,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         touchSlop = configuration.scaledTouchSlop
     }
 
+    @SuppressLint("RestrictedApi")
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         Log.d(TAG, "「onInterceptTouchEvent」 [t: ${ev.actionMasked}] [y: ${ev.y}]")
         when (ev.actionMasked) {
@@ -226,9 +233,9 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
                 // 认为算是滚动
                 val yDiffDown = abs(y - lastDownYForInterceptEvent)
                 if (yDiffDown > touchSlop) {
-                    // 当我还可以滚动的时候，优先滚动我自己
                     val yDiffMotion = lastMotionYForInterceptTouchEvent - ev.y.toInt()
                     if (yDiffMotion > 0) { // 向上
+                        // 当我还可以滚动的时候，优先滚动我自己
                         if ((yDiffMotion + scrollY) in verticalScrollRange()) {
                             Log.d(
                                 TAG,
@@ -236,6 +243,53 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
                             )
                             lastMotionYForInterceptTouchEvent = ev.y.toInt()
                             return true
+                        }
+                    } else if (yDiffMotion < 0) { // 向下
+
+                        fun isTouchNestedScrollChild(parent: ViewGroup, child: View, x: Int, y: Int): Boolean {
+                            fun isMeTouchNestedScrollChild(parent: ViewGroup, child: View, x: Int, y: Int): Boolean {
+                                val r = Rect()
+                                val offsetX = parent.scrollX - child.left
+                                val offsetY = parent.scrollY - child.top
+                                val newX = x + offsetX
+                                val newY = y + offsetY
+
+                                r.top = child.top
+                                r.left = child.left
+                                r.right = child.right
+                                r.bottom = child.bottom
+
+                                Log.d(TAG, "isMeTouchNestedScrollChild: p: $parent c: $child x: $x y: $y sY: ${parent.scrollX} t: ${child.top}")
+
+                                val contain = r.contains(newX, newY)
+                                val nestedScrollChild = child.isNestedScrollingEnabled
+                                Log.d(
+                                    TAG,
+                                    "isMeTouchNestedScrollChild: $child contain $contain $nestedScrollChild"
+                                )
+                                return contain && nestedScrollChild
+                            }
+
+                            return isMeTouchNestedScrollChild(
+                                parent,
+                                child,
+                                x,
+                                y
+                            ) || (child is ViewGroup && child.children.any { childChild ->
+
+                                val offsetX = parent.scrollX - child.left
+                                val offsetY = parent.scrollY - child.top
+                                val newX = x + offsetX
+                                val newY = y + offsetY
+
+                                isTouchNestedScrollChild(child, childChild, newX, newY)
+                            })
+                        }
+
+                        children.forEach { child ->
+                            if (!isTouchNestedScrollChild(this, child, ev.x.toInt(), ev.y.toInt())) {
+                                return true
+                            }
                         }
                     }
                 }
@@ -284,7 +338,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
             when (type) {
 
                 // fling造成的不滚动
-                ViewCompat.TYPE_NON_TOUCH -> { }
+                ViewCompat.TYPE_NON_TOUCH -> {}
 
                 ViewCompat.TYPE_TOUCH -> {
                     doNestedPreScroll(dyUnconsumed, consumed, type)
@@ -385,18 +439,18 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     }
 
     private fun settle(fl: Float) {
-            // 下正
-            if (fl> 0) { // 速度向下
+        // 下正
+        if (fl > 0) { // 速度向下
+            autoSettle(scrollY, true, "")
+        } else if (fl < 0) { // 速度向上
+            autoSettle(scrollY, false, "")
+        } else { // 速度为0
+            if (Math.abs(scrollY - openState.first) > Math.abs(scrollY - openState.second)) {
                 autoSettle(scrollY, true, "")
-            } else if (fl < 0) { // 速度向上
+            } else {
                 autoSettle(scrollY, false, "")
-            } else { // 速度为0
-                if (Math.abs(scrollY - openState.first) > Math.abs(scrollY - openState.second)) {
-                    autoSettle(scrollY, true, "")
-                } else {
-                    autoSettle(scrollY, false, "")
-                }
             }
+        }
     }
 
     data class AnimateValue(
