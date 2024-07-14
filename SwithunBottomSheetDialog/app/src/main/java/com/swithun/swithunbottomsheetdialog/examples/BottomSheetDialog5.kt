@@ -9,18 +9,17 @@ import com.swithun.swithunbottomsheetdialog.BottomSheetDialog
 import com.swithun.swithunbottomsheetdialog.BottomSheetDialogLayout
 import com.swithun.swithunbottomsheetdialog.R
 
-class BottomSheetDialog3: BottomSheetDialog() {
+class BottomSheetDialog5: BottomSheetDialog() {
     override fun onCreateContentView(
         inflater: LayoutInflater,
         contentViewWrapper: BottomSheetDialogLayout,
         savedInstanceState: Bundle?
     ) {
-        inflater.inflate(R.layout.bottom_sheet_dialog_0, contentViewWrapper, true)
+        inflater.inflate(R.layout.bottom_sheet_dialog_1, contentViewWrapper, true)
         contentViewWrapper.customStateList = listOf(
-            BottomSheetDialogLayout.CustomHeight.Bottom(400),
-            BottomSheetDialogLayout.CustomHeight.Number(1300),
-            BottomSheetDialogLayout.CustomHeight.Percent(0.3f),
-            BottomSheetDialogLayout.CustomHeight.Highest(0)
+            BottomSheetDialogLayout.CustomHeight.Bottom(200),
+            BottomSheetDialogLayout.CustomHeight.Percent(0.4f),
+            BottomSheetDialogLayout.CustomHeight.Highest(200)
         )
     }
 

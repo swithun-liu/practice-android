@@ -47,11 +47,16 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     //// 吸附位置
     /** 默认的最低吸附位置 */
     private val stateLowest get() = -height
+
     /** 默认的最高吸附位置 */
     private val stateHighest get() = 0
 
     /** 自定义的吸附位置列表 */
     var customStateList: List<CustomHeight>? = null
+
+    /** 初始化时到哪个state */
+    var initState: Int = 0
+    var stateListener: ((Int) -> Unit)? = null
 
     /** 想要的吸附位置列表 */
     private val wantStateList: List<Int>
@@ -60,7 +65,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
             return custom?.map {
                 when (it) {
                     is CustomHeight.Bottom -> stateLowest + it.add
-                    CustomHeight.Highest -> stateHighest
+                    is CustomHeight.Highest -> stateHighest - it.reduce
                     is CustomHeight.Number -> -it.value
                     is CustomHeight.Percent -> (stateLowest * it.f).toInt()
                 }
@@ -105,6 +110,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     private val parentHelper by lazy {
         NestedScrollingParentHelper(this)
     }
+    private val interceptTouchEventHelper = InterceptTouchEventHelper()
 
     /// fling 检测
     private val velocityTracker = VelocityTracker.obtain()
@@ -118,8 +124,16 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
 
     fun init() {
         this.post {
-            scrollTo(scrollX, safeStateList[0])
+            val list = safeStateList
+            val initState = initState
+            val initScrollY = when {
+                initState >= list.size -> list.size - 1
+                initState < 0 -> 0
+                else -> initState
+            }
+            scrollTo(scrollX, list[initScrollY])
         }
+
         autoSettleAnimator.addUpdateListener {
             val process = (it.animatedValue as Float)
             val passed = (animateStartY2EndY.endY - animateStartY2EndY.startY) * process
@@ -130,6 +144,15 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
                 "[Fling Animate] $process $process | ${animateStartY2EndY.endY}, ${animateStartY2EndY.startY} | $passed $newScrollY"
             )
             this.scrollTo(scrollX, newScrollY.toInt())
+        }
+    }
+
+    override fun onScrollChanged(l: Int, t: Int, oldl: Int, oldt: Int) {
+        super.onScrollChanged(l, t, oldl, oldt)
+        for ((i, v) in safeStateList.withIndex()) {
+            if (v == t) {
+                stateListener?.invoke(i)
+            }
         }
     }
 
@@ -152,7 +175,12 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         val touchY = event.y.toInt()
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
+
+                scrollCauser = ScrollCauser.NONE
+                autoSettleAnimator.cancel()
+
                 recordDownForOnTouchEvent(touchY)
+                recordMotionForOnTouchEvent(touchY)
             }
 
             MotionEvent.ACTION_MOVE -> {
@@ -160,17 +188,10 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
                 val moveY = lastMotionYForOnTouchEvent - touchY
                 scrollCauser = ScrollCauser.USER_TOUCH
                 scrollBy(0, moveY)
-                lastMotionYForOnTouchEvent = touchY
+                recordMotionForOnTouchEvent(touchY)
             }
         }
         return true
-    }
-
-    private fun recordDownForOnTouchEvent(touchY: Int) {
-        scrollCauser = ScrollCauser.NONE
-        autoSettleAnimator.cancel()
-        lastDownYForOnTouchEvent = touchY
-        lastMotionYForOnTouchEvent = touchY
     }
 
     override fun onStopNestedScroll(target: View, type: Int) {
@@ -230,10 +251,18 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
         Log.d(TAG, "「onInterceptTouchEvent」 [t: ${ev.actionMasked}] [y: ${ev.y}]")
+
+        fun recordEvent(ev: MotionEvent) {
+            recordMotionYForOnInterceptTouchEvent(ev.y.toInt())
+            // 在拦截事件之前，走不到onTouch，所以需要在这里记录一下，
+            // 拦截事件之后，就不会走[onInterceptEvent]了，只走[onTouchEvent]，所以对之后的"onTouchEvent对lastMotionForOnTouch"的记录不回有影响
+            recordMotionForOnTouchEvent(ev.y.toInt())
+        }
+
         when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 // 记录Down
-                lastDownYForInterceptEvent = ev.y.toInt()
+                recordDownYForOnInterceptTouchEvent(ev.y.toInt())
                 // 帮[onTouchEvent]记录一下
                 recordDownForOnTouchEvent(ev.y.toInt())
             }
@@ -251,60 +280,16 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
                                 TAG,
                                 "[onInterceptTouchEvent] [return] $yDiffMotion $scrollY | ${verticalScrollRange()}"
                             )
-                            lastMotionYForInterceptTouchEvent = ev.y.toInt()
+                            recordEvent(ev)
                             return true
                         }
                     } else if (yDiffMotion < 0) { // 向下
-
-                        fun isTouchNestedScrollChild(
-                            parent: ViewGroup, child: View, x: Int, y: Int
-                        ): Boolean {
-                            fun isMeTouchNestedScrollChild(
-                                parent: ViewGroup, child: View, x: Int, y: Int
-                            ): Boolean {
-                                val r = Rect()
-                                val offsetX = parent.scrollX - child.left
-                                val offsetY = parent.scrollY - child.top
-                                val newX = x + offsetX
-                                val newY = y + offsetY
-
-                                r.top = child.top
-                                r.left = child.left
-                                r.right = child.right
-                                r.bottom = child.bottom
-
-                                Log.d(
-                                    TAG,
-                                    "isMeTouchNestedScrollChild: p: $parent c: $child x: $x y: $y sY: ${parent.scrollX} t: ${child.top}"
-                                )
-
-                                val contain = r.contains(newX, newY)
-                                val nestedScrollChild = child.isNestedScrollingEnabled
-                                Log.d(
-                                    TAG,
-                                    "isMeTouchNestedScrollChild: $child contain $contain $nestedScrollChild"
-                                )
-                                return contain && nestedScrollChild
-                            }
-
-                            return isMeTouchNestedScrollChild(
-                                parent, child, x, y
-                            ) || (child is ViewGroup && child.children.any { childChild ->
-
-                                val offsetX = parent.scrollX - child.left
-                                val offsetY = parent.scrollY - child.top
-                                val newX = x + offsetX
-                                val newY = y + offsetY
-
-                                isTouchNestedScrollChild(child, childChild, newX, newY)
-                            })
-                        }
-
                         children.forEach { child ->
-                            if (!isTouchNestedScrollChild(
+                            if (!interceptTouchEventHelper.isTouchNestedScrollChild(
                                     this, child, ev.x.toInt(), ev.y.toInt()
                                 )
                             ) {
+                                recordEvent(ev)
                                 return true
                             }
                         }
@@ -313,10 +298,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
             }
         }
 
-        // 在拦截事件之前，走不到onTouch，所以需要在这里记录一下，
-        // 拦截事件之后，就不会走[onInterceptEvent]了，只走[onTouchEvent]，所以对之后的"onTouchEvent对lastMotionForOnTouch"的记录不回有影响
-        lastMotionYForOnTouchEvent = ev.y.toInt()
-        lastMotionYForInterceptTouchEvent = ev.y.toInt()
+        recordEvent(ev)
         return super.onInterceptTouchEvent(ev) // 不拦截触摸事件，传递给子视图
     }
 
@@ -329,7 +311,9 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         } else {
             safeStateList[up]
         }
-        Log.d(TAG, "[autoSettle] [up: $up] [down: $down] [isD: $isDown] [toY: $animateY]")
+        Log.d(
+            TAG, "[autoSettle] for $reason [up: $up] [down: $down] [isD: $isDown] [toY: $animateY]"
+        )
 
         scrollCauser = ScrollCauser.AUTO_SETTLE
 
@@ -440,7 +424,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
 
             else -> {
                 if (y > verticalScrollRange().last) {
-                    doSettle(scrollY, false, "scrollTo")
+                    doSettle(scrollY, false, "scrollTo Top")
                     return
                 } else {
                     if (y in verticalScrollRange()) {
@@ -455,17 +439,33 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         }
     }
 
+    private fun recordDownYForOnInterceptTouchEvent(y: Int) {
+        lastDownYForInterceptEvent = y
+    }
+
+    private fun recordMotionYForOnInterceptTouchEvent(y: Int) {
+        lastMotionYForInterceptTouchEvent = y
+    }
+
+    private fun recordMotionForOnTouchEvent(touchY: Int) {
+        lastMotionYForOnTouchEvent = touchY
+    }
+
+    private fun recordDownForOnTouchEvent(touchY: Int) {
+        lastDownYForOnTouchEvent = touchY
+    }
+
     private fun settle(fl: Float) {
         // 下正
         if (fl > 0) { // 速度向下
-            doSettle(scrollY, true, "")
+            doSettle(scrollY, true, "settle 速度向下")
         } else if (fl < 0) { // 速度向上
-            doSettle(scrollY, false, "")
+            doSettle(scrollY, false, "settle 速度向上")
         } else { // 速度为0
             if (Math.abs(scrollY - openState.first) > Math.abs(scrollY - openState.second)) {
-                doSettle(scrollY, true, "")
+                doSettle(scrollY, true, "settle 速度为0 down")
             } else {
-                doSettle(scrollY, false, "")
+                doSettle(scrollY, false, "settle 速度为0 up")
             }
         }
     }
@@ -491,7 +491,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         class Number(val value: Int) : CustomHeight
         class Percent(val f: Float) : CustomHeight
         class Bottom(val add: Int) : CustomHeight
-        data object Highest : CustomHeight
+        class Highest(val reduce: Int) : CustomHeight
     }
 
 
