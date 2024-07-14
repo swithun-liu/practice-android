@@ -2,14 +2,12 @@ package com.swithun.swithunbottomsheetdialog
 
 import android.animation.ValueAnimator
 import android.content.Context
-import android.graphics.Rect
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
 import android.view.VelocityTracker
 import android.view.View
 import android.view.ViewConfiguration
-import android.view.ViewGroup
 import android.view.animation.OvershootInterpolator
 import android.widget.FrameLayout
 import androidx.core.view.NestedScrollingParent3
@@ -22,7 +20,7 @@ import kotlin.math.abs
 
 class BottomSheetDialogLayout @JvmOverloads constructor(
     context: Context, attrs: AttributeSet? = null, defStyleAttr: Int = 0
-) : FrameLayout(context, attrs, defStyleAttr), NestedScrollingParent3 {
+) : FrameLayout(context, attrs, defStyleAttr), NestedScrollingParent3, IBottomSheetDialogLayoutSetting {
 
     /** 第一个View */
     private val firstView: View?
@@ -52,11 +50,11 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     private val stateHighest get() = 0
 
     /** 自定义的吸附位置列表 */
-    var customStateList: List<CustomHeight>? = null
+    override var customStateList: List<CustomHeight>? = null
 
     /** 初始化时到哪个state */
-    var initState: Int = 0
-    var stateListener: ((Int) -> Unit)? = null
+    override var initState: Int = 0
+    override var stateListener: ((Int) -> Unit)? = null
 
     /** 想要的吸附位置列表 */
     private val wantStateList: List<Int>
@@ -110,7 +108,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     private val parentHelper by lazy {
         NestedScrollingParentHelper(this)
     }
-    private val interceptTouchEventHelper = InterceptTouchEventHelper()
+    private val interceptTouchEventHelper = BottomSheetDialogInterceptTouchEventHelper()
 
     /// fling 检测
     private val velocityTracker = VelocityTracker.obtain()
@@ -122,7 +120,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         it.interpolator = OvershootInterpolator(1f)
     }
 
-    fun init() {
+    override fun init() {
         this.post {
             val list = safeStateList
             val initState = initState
@@ -175,10 +173,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         val touchY = event.y.toInt()
         when (event.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
-
-                scrollCauser = ScrollCauser.NONE
-                autoSettleAnimator.cancel()
-
+                resetForDown()
                 recordDownForOnTouchEvent(touchY)
                 recordMotionForOnTouchEvent(touchY)
             }
@@ -203,6 +198,12 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
 
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         Log.d(TAG, "「dispatchTouchEvent」 ${ev?.y} ${ev?.actionMasked}")
+        when(ev.actionMasked) {
+            MotionEvent.ACTION_DOWN -> {
+                resetForDown()
+            }
+        }
+
         when {
             ev.actionMasked == MotionEvent.ACTION_DOWN && ev.y + scrollY < verticalScrollRange().last -> {
                 disableTouch = true
@@ -424,9 +425,11 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
 
             else -> {
                 if (y > verticalScrollRange().last) {
+                    // 即将到达顶部，执行settle
                     doSettle(scrollY, false, "scrollTo Top")
                     return
                 } else {
+                    // 限制滚动范围
                     if (y in verticalScrollRange()) {
                         Log.d(TAG, "[scrollTo]#[true] $y ${firstView?.height}")
                         super.scrollTo(x, y)
@@ -437,6 +440,12 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
 
             }
         }
+    }
+
+    private fun resetForDown() {
+        scrollCauser = ScrollCauser.NONE
+        autoSettleAnimator.cancel()
+        stopNestedScroll()
     }
 
     private fun recordDownYForOnInterceptTouchEvent(y: Int) {

@@ -16,7 +16,7 @@ class BottomSheetDialog5: BottomSheetDialog() {
         savedInstanceState: Bundle?
     ) {
         inflater.inflate(R.layout.bottom_sheet_dialog_1, contentViewWrapper, true)
-        contentViewWrapper.customStateList = listOf(
+        contentViewWrapper.asIBottomSheetDialogLayoutSetting().customStateList = listOf(
             BottomSheetDialogLayout.CustomHeight.Bottom(200),
             BottomSheetDialogLayout.CustomHeight.Percent(0.4f),
             BottomSheetDialogLayout.CustomHeight.Highest(200)

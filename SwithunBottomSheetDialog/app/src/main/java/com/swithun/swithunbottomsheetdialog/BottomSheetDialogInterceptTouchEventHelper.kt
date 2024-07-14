@@ -6,7 +6,7 @@ import android.view.View
 import android.view.ViewGroup
 import androidx.core.view.children
 
-class InterceptTouchEventHelper {
+class BottomSheetDialogInterceptTouchEventHelper {
 
     fun isTouchNestedScrollChild(
         parent: ViewGroup, child: View, x: Int, y: Int

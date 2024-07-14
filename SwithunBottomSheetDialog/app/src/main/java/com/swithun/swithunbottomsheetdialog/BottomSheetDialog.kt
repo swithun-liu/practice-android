@@ -22,7 +22,7 @@ abstract class BottomSheetDialog: DialogFragment() {
         val contentViewWrapper = inflater.inflate(R.layout.bottom_sheet_dialog_layout, container, false)
         contentView = contentViewWrapper
         onCreateContentView(inflater, contentViewWrapper as BottomSheetDialogLayout, savedInstanceState)
-        contentViewWrapper.init()
+        contentViewWrapper.asIBottomSheetDialogLayoutSetting().init()
         return contentView
     }
 

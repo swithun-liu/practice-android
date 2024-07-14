@@ -16,14 +16,14 @@ class BottomSheetDialog4: BottomSheetDialog() {
         savedInstanceState: Bundle?
     ) {
         inflater.inflate(R.layout.bottom_sheet_dialog_0, contentViewWrapper, true)
-        contentViewWrapper.customStateList = listOf(
+        contentViewWrapper.asIBottomSheetDialogLayoutSetting().customStateList = listOf(
             BottomSheetDialogLayout.CustomHeight.Bottom(0),
             BottomSheetDialogLayout.CustomHeight.Number(1300),
             BottomSheetDialogLayout.CustomHeight.Percent(0.3f),
             BottomSheetDialogLayout.CustomHeight.Highest(0)
         )
-        contentViewWrapper.initState = 1
-        contentViewWrapper.stateListener = { state ->
+        contentViewWrapper.asIBottomSheetDialogLayoutSetting().initState = 1
+        contentViewWrapper.asIBottomSheetDialogLayoutSetting().stateListener = { state ->
             if (state == 0) {
                 this.dismiss()
             }
