@@ -15,6 +15,7 @@ import com.swithun.swithunbottomsheetdialog.examples.BottomSheetDialog2
 import com.swithun.swithunbottomsheetdialog.examples.BottomSheetDialog3
 import com.swithun.swithunbottomsheetdialog.examples.BottomSheetDialog4
 import com.swithun.swithunbottomsheetdialog.examples.BottomSheetDialog5
+import com.swithun.swithunbottomsheetdialog.examples.BottomSheetDialog6
 
 class MainActivity : AppCompatActivity() {
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -33,6 +34,7 @@ class MainActivity : AppCompatActivity() {
             generateButton(this, "3") { BottomSheetDialog3() },
             generateButton(this, "4") { BottomSheetDialog4() },
             generateButton(this, "5") { BottomSheetDialog5() },
+            generateButton(this, "6") { BottomSheetDialog6() },
         ).forEach { bt ->
             this.findViewById<LinearLayout>(R.id.main).also { main ->
                 main.addView(bt)

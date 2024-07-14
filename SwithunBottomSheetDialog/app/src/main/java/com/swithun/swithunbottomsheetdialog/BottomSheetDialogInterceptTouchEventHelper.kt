@@ -8,6 +8,9 @@ import androidx.core.view.children
 
 class BottomSheetDialogInterceptTouchEventHelper {
 
+    /**
+     * 是否点击在一个支持嵌套滚动的view上
+     */
     fun isTouchNestedScrollChild(
         parent: ViewGroup, child: View, x: Int, y: Int
     ): Boolean {

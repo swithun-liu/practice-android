@@ -2,6 +2,7 @@ package com.swithun.swithunbottomsheetdialog
 
 import android.animation.ValueAnimator
 import android.content.Context
+import android.graphics.drawable.Drawable
 import android.util.AttributeSet
 import android.util.Log
 import android.view.MotionEvent
@@ -119,6 +120,12 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     private val autoSettleAnimator = ValueAnimator().also {
         it.interpolator = OvershootInterpolator(1f)
     }
+
+    override var bgMask: Drawable
+        get() = this.background
+        set(value) {
+            this.background = value
+        }
 
     override fun init() {
         this.post {
