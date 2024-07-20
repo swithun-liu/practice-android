@@ -121,6 +121,8 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         it.interpolator = OvershootInterpolator(1f)
     }
 
+    private var disableTouch = false
+
     override var bgMask: Drawable
         get() = this.background
         set(value) {
@@ -203,8 +205,6 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         parentHelper.onStopNestedScroll(target, type)
     }
 
-    private var disableTouch = false
-
     override fun dispatchTouchEvent(ev: MotionEvent): Boolean {
         Log.d(TAG, "「dispatchTouchEvent」 ${ev?.y} ${ev?.actionMasked}")
         when(ev.actionMasked) {
@@ -229,7 +229,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
 
         if (disableTouch) return true
 
-        when (ev?.actionMasked) {
+        when (ev.actionMasked) {
             MotionEvent.ACTION_DOWN -> {
                 scrollCauser = ScrollCauser.NONE
                 autoSettleAnimator.cancel()
@@ -252,11 +252,9 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         return super.dispatchTouchEvent(ev)
     }
 
-    private val touchSlop: Int
-
-    init {
+    private val touchSlop: Int = run {
         val configuration = ViewConfiguration.get(context)
-        touchSlop = configuration.scaledTouchSlop
+        configuration.scaledTouchSlop
     }
 
     override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
@@ -294,6 +292,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
                             return true
                         }
                     } else if (yDiffMotion < 0) { // 向下
+                        // 如果没有点到支持嵌套滚动的子view，优先滚动我自己
                         children.forEach { child ->
                             if (!interceptTouchEventHelper.isTouchNestedScrollChild(
                                     this, child, ev.x.toInt(), ev.y.toInt()
@@ -316,7 +315,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         return super.onInterceptTouchEvent(ev) // 不拦截触摸事件，传递给子视图
     }
 
-    private fun doSettle(scrollY: Int, isDown: Boolean, reason: String) {
+    private fun doSettle(isDown: Boolean, reason: String) {
         val up = openState.second
         val down = openState.first
 
@@ -360,7 +359,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
                 ViewCompat.TYPE_NON_TOUCH -> {}
 
                 ViewCompat.TYPE_TOUCH -> {
-                    doNestedPreScroll(dyUnconsumed, consumed, type)
+                    doNestedScroll(dyUnconsumed, consumed, type)
                 }
             }
         }
@@ -400,7 +399,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
                     if (dy > 0) {
                         // 手指下滑，优先滚内部，才会走到这里
                         // 外壳没到顶，向上滚动，先滚外壳
-                        doNestedPreScroll(dy, consumed, type)
+                        doNestedScroll(dy, consumed, type)
                     } else {
                         // 手指上滑，优先滚外壳，在onTouchEvent那里处理了，所有不会走到这里
                     }
@@ -409,7 +408,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
         }
     }
 
-    private fun doNestedPreScroll(
+    private fun doNestedScroll(
         parentWantToConsume: Int, consumed: IntArray, @NestedScrollType type: Int
     ) {
         val nextY = scrollY + parentWantToConsume
@@ -443,7 +442,7 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
             else -> {
                 if (y > verticalScrollRange().last) {
                     // 即将到达顶部，执行settle
-                    doSettle(scrollY, false, "scrollTo Top")
+                    doSettle(false, "scrollTo Top")
                     return
                 } else {
                     // 限制滚动范围
@@ -484,26 +483,26 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
     private fun settle(fl: Float) {
         // 下正
         if (fl > 0) { // 速度向下
-            doSettle(scrollY, true, "settle 速度向下")
+            doSettle(true, "settle 速度向下")
         } else if (fl < 0) { // 速度向上
-            doSettle(scrollY, false, "settle 速度向上")
+            doSettle(false, "settle 速度向上")
         } else { // 速度为0
             if (Math.abs(scrollY - openState.first) > Math.abs(scrollY - openState.second)) {
-                doSettle(scrollY, true, "settle 速度为0 down")
+                doSettle(true, "settle 速度为0 down")
             } else {
-                doSettle(scrollY, false, "settle 速度为0 up")
+                doSettle(false, "settle 速度为0 up")
             }
         }
+    }
+
+    private fun setAnimatedValue(reducer: AnimateValue.() -> AnimateValue) {
+        this.animateStartY2EndY = reducer(this.animateStartY2EndY)
     }
 
     data class AnimateValue(
         var startY: Int,
         var endY: Int,
     )
-
-    private fun setAnimatedValue(reducer: AnimateValue.() -> AnimateValue) {
-        this.animateStartY2EndY = reducer(this.animateStartY2EndY)
-    }
 
     interface ScrollCauser {
         object NONE : ScrollCauser
