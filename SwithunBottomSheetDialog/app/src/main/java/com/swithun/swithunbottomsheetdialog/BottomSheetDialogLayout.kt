@@ -129,14 +129,16 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
 
     override fun init() {
         this.post {
-            val list = safeStateList
             val initState = initState
+
+            val list = safeStateList
+            scrollTo(scrollX, safeStateList[0] + 1)
             val initScrollY = when {
                 initState >= list.size -> list.size - 1
                 initState < 0 -> 0
                 else -> initState
             }
-            scrollTo(scrollX, list[initScrollY])
+            innerDoSettle(list[initScrollY])
         }
 
         autoSettleAnimator.addUpdateListener {
@@ -297,6 +299,10 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
                                     this, child, ev.x.toInt(), ev.y.toInt()
                                 )
                             ) {
+                                Log.d(
+                                    TAG,
+                                    "[onInterceptTouchEvent] [return2] $yDiffMotion $scrollY | ${verticalScrollRange()}"
+                                )
                                 recordEvent(ev)
                                 return true
                             }
@@ -323,6 +329,10 @@ class BottomSheetDialogLayout @JvmOverloads constructor(
             TAG, "[autoSettle] for $reason [up: $up] [down: $down] [isD: $isDown] [toY: $animateY]"
         )
 
+        innerDoSettle(animateY)
+    }
+
+    private fun innerDoSettle(animateY: Int) {
         scrollCauser = ScrollCauser.AUTO_SETTLE
 
         setAnimatedValue { AnimateValue(scrollY, animateY) }
