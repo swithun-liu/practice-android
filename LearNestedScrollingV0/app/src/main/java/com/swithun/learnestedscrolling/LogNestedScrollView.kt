@@ -6,6 +6,7 @@ import android.util.Log
 import android.view.MotionEvent
 import android.view.View
 import androidx.core.widget.NestedScrollView
+import java.util.UUID
 
 class LogNestedScrollView @JvmOverloads constructor(
     context: Context,
@@ -17,6 +18,13 @@ class LogNestedScrollView @JvmOverloads constructor(
 
     var TAG = ""
 
+    override fun dispatchTouchEvent(ev: MotionEvent?): Boolean {
+        val id = UUID.randomUUID()
+        Log.d(TAG, "dispatchTouchEvent($id) begin")
+        return super.dispatchTouchEvent(ev).also {
+            Log.d(TAG, "dispatchTouchEvent($id) end")
+        }
+    }
 
     override fun onTouchEvent(ev: MotionEvent): Boolean {
         val actionName = when(ev.actionMasked) {
@@ -26,8 +34,9 @@ class LogNestedScrollView @JvmOverloads constructor(
             MotionEvent.ACTION_CANCEL -> "ACTION_CANCEL"
             else -> "OTHER_ACTOIN"
         }
-        Log.d(TAG, "touchEvent: $actionName")
-        return super.onTouchEvent(ev)
+        return super.onTouchEvent(ev).also {
+            Log.d(TAG, "touchEvent: $actionName | return $it")
+        }
     }
 
     override fun startNestedScroll(axes: Int): Boolean {
@@ -251,6 +260,12 @@ class LogNestedScrollView @JvmOverloads constructor(
     override fun onNestedPreFling(target: View, velocityX: Float, velocityY: Float): Boolean {
         return super.onNestedPreFling(target, velocityX, velocityY).also {
             Log.i(TAG, "PARENT-1: onNestedPreFling $it")
+        }
+    }
+
+    override fun onInterceptTouchEvent(ev: MotionEvent): Boolean {
+        return super.onInterceptTouchEvent(ev).also {
+            Log.i(TAG, " onInterceptTouchEvent: $it")
         }
     }
 

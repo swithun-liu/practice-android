@@ -27,9 +27,13 @@
                 android:background="#FA8585" />
 
             <View
+                android:id="@+id/parentClickTest"
                 android:layout_width="match_parent"
                 android:layout_height="300dp"
-                android:background="#85FAB4" />
+                android:background="#85FAB4"
+                android:clickable="true"
+                android:focusable="true"
+                />
 
             <View
                 android:layout_width="match_parent"
@@ -57,9 +61,13 @@
                         android:background="#840000" />
 
                     <View
+                        android:id="@+id/childClickTest"
                         android:layout_width="match_parent"
                         android:layout_height="150dp"
-                        android:background="#006A2A" />
+                        android:background="#006A2A"
+                        android:clickable="true"
+                        android:focusable="true"
+                        />
 
                     <View
                         android:layout_width="match_parent"
