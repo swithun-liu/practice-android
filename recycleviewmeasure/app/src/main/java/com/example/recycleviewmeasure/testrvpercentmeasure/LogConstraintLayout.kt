@@ -13,7 +13,7 @@ open class LogConstraintLayout @JvmOverloads constructor(
 ) : ConstraintLayout(context, attrs, defStyleAttrs) {
 
     override fun onMeasure(widthSpec: Int, heightSpec: Int) {
-        this.logOnMeasure(widthSpec, heightSpec)
+        this.logOnMeasure(widthSpec, heightSpec, "LogConstraintLayout")
         val heightSpec = MeasureSpec.makeMeasureSpec(
             ((this.parent!! as View).height * 0.4).toInt(),
             MeasureSpec.AT_MOST
@@ -23,9 +23,9 @@ open class LogConstraintLayout @JvmOverloads constructor(
 
 }
 
-fun ConstraintLayout.logOnMeasure(widthSpec: Int, heightSpec: Int) {
+fun ConstraintLayout.logOnMeasure(widthSpec: Int, heightSpec: Int, subTag: String) {
     Log.i(
         "swithun-xxxx",
-        "#LogConstraintLayout#onMeasure WidthMode: ${widthSpec.getModeStr()} WidthSize: ${widthSpec.getSize()} HeightMode: ${heightSpec.getModeStr()} HeightSize: ${heightSpec.getSize()} parentHeight: ${(this.parent as LogRecyclerView).height}"
+        "#$subTag#onMeasure WidthMode: ${widthSpec.getModeStr()} WidthSize: ${widthSpec.getSize()} HeightMode: ${heightSpec.getModeStr()} HeightSize: ${heightSpec.getSize()} parentHeight: ${(this.parent as LogRecyclerView).height}"
     )
 }

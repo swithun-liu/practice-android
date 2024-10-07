@@ -20,33 +20,27 @@ class PercentHeightOfRVRVItemActivity : AppCompatActivity() {
         binding.testRv.layoutManager = LinearLayoutManager(this)
         binding.testRv.adapter = adapter
         adapter.submitList(listOf(
-            RVItemData(10),
-            RVItemData(20),
-            RVItemData(30),
-            RVItemData(40),
-            RVItemData(50),
-            RVItemData(60),
-            RVItemData(70),
-            RVItemData(80),
-            RVItemData(90),
-            RVItemData(100),
-            RVItemData(120),
-            RVItemData(130),
+            RVItemData.OtherItem("10".repeat(10)),
+            RVItemData.PercentItem(10),
+            RVItemData.OtherItem("10".repeat(20)),
+            RVItemData.PercentItem(20),
+            RVItemData.OtherItem("10".repeat(30)),
+            RVItemData.PercentItem(30),
         ))
         binding.refresh.setOnClickListener {
             adapter.submitList(listOf(
-                RVItemData(10),
-                RVItemData(20),
-                RVItemData(30),
-                RVItemData(40),
-                RVItemData(50),
-                RVItemData(60),
-                RVItemData(70),
-                RVItemData(80),
-                RVItemData(90),
-                RVItemData(100),
-                RVItemData(120),
-                RVItemData(130),
+                RVItemData.OtherItem("10".repeat(10)),
+                RVItemData.PercentItem(10),
+                RVItemData.OtherItem("10".repeat(200)),
+                RVItemData.PercentItem(20),
+                RVItemData.OtherItem("10".repeat(300)),
+                RVItemData.PercentItem(30),
+                RVItemData.OtherItem("10".repeat(10)),
+                RVItemData.PercentItem(10),
+                RVItemData.OtherItem("10".repeat(200)),
+                RVItemData.PercentItem(20),
+                RVItemData.OtherItem("10".repeat(300)),
+                RVItemData.PercentItem(30),
             ))
         }
         ViewCompat.setOnApplyWindowInsetsListener(findViewById(R.id.main)) { v, insets ->

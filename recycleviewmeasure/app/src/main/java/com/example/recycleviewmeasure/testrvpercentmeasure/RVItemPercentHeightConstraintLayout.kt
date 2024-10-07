@@ -36,7 +36,7 @@ class RVItemPercentHeightConstraintLayout @JvmOverloads constructor(
     }
 
     override fun onMeasure(widthSpec: Int, heightSpec: Int) {
-        this.logOnMeasure(widthSpec, heightSpec)
+        this.logOnMeasure(widthSpec, heightSpec, "RVItemPercentHeightConstraintLayout")
 
         val parent = this.parent as? RecyclerView
         val percent = heightPercentOfParent

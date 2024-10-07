@@ -10,7 +10,8 @@
     <com.example.recycleviewmeasure.testrvpercentmeasure.LogRecyclerView
         android:id="@+id/testRv"
         android:layout_width="0dp"
-        android:layout_height="0dp"
+        android:background="#D06060"
+        android:layout_height="wrap_content"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
