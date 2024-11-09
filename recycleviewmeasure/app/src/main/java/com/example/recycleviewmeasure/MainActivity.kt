@@ -30,4 +30,24 @@ class MainActivity : AppCompatActivity() {
             insets
         }
     }
+
+    override fun onResume() {
+        super.onResume()
+    }
+
+    override fun onAttachedToWindow() {
+        super.onAttachedToWindow()
+    }
+
+    override fun onDetachedFromWindow() {
+        super.onDetachedFromWindow()
+    }
+
+    override fun onStop() {
+        super.onStop()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+    }
 }
