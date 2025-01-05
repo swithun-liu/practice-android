@@ -70,6 +70,7 @@ kotlin {
             implementation(libs.androidx.lifecycle.runtime.compose)
             implementation("org.jetbrains.kotlinx:kotlinx-datetime:0.6.0")
             implementation(libs.navigation.compose)
+            implementation(libs.androidx.ui.android)
         }
         desktopMain.dependencies {
             implementation(compose.desktop.currentOs)

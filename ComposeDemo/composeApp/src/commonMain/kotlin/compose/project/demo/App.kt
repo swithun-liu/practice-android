@@ -60,6 +60,12 @@ fun App() {
             composable("second_screen") {
                 SecondScreen(navigationController)
             }
+            composable("text_field_test") {
+                TextFieldTest()
+            }
+            composable("text_android_view") {
+                TextFieldTest()
+            }
         }
     }
 }
@@ -78,6 +84,11 @@ fun FirstScreen(
             navigationController.navigate("second_screen")
         }) {
             Text("nav to 2")
+        }
+        Button(onClick = {
+            navigationController.navigate("text_field_test")
+        }) {
+            Text("nav to TextField")
         }
         TextField(value = uiState.value.location, onValueChange = { viewModel.changeLocation(it) })
         AnimatedVisibility(uiState.value.showContent) {
