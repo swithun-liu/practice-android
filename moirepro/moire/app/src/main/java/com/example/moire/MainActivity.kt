@@ -35,7 +35,11 @@ class MainActivity : AppCompatActivity() {
             val outputPath = File(cacheDir, "processed_image.jpg").absolutePath
             // 调用去摩尔纹方法（注意：需在后台线程执行！）
             Thread {
-                removeMoire(inputPath!!, outputPath)
+                val bitmap = BitmapFactory.decodeFile(inputPath)
+                runOnUiThread {
+                    findViewById<ImageView>(R.id.old_image).setImageBitmap(bitmap)
+                }
+                quickRemoveMoire(inputPath!!, outputPath)
                 // 处理完成后更新 UI（例如显示图片）
                 runOnUiThread {
                     val bitmap = BitmapFactory.decodeFile(outputPath)

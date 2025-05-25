@@ -12,14 +12,23 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:text="Hello World!"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        />
+
+    <ImageView
+        android:id="@+id/old_image"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"/>
 
     <ImageView
         android:id="@+id/result_image"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"/>
+        android:layout_height="0dp"/>
+
+    <androidx.constraintlayout.helper.widget.Flow
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        app:constraint_referenced_ids="btn, old_image, result_image"
+        />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
