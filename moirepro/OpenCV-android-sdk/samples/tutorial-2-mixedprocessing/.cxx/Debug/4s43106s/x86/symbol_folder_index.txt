@@ -1,0 +1,1 @@
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-2-mixedprocessing/build/intermediates/cxx/Debug/4s43106s/obj/x86

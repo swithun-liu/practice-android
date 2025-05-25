@@ -58,25 +58,25 @@ internal class OptimizationComparisonTask(
         this.code = builder.toString()
     }
 
-    protected override fun doInBackground(vararg params: Int): List<Result> {
+    override fun doInBackground(vararg params: Int?): List<Result> {
         val context = rhinoAndroidHelper.enterContext()
         val scope: Scriptable = ImporterTopLevel(context)
         //warm up
         for (i in params) {
-            context.optimizationLevel = i
+            context.optimizationLevel = i!!
             for (j in 0..9) {
                 context.compileString(code, "compute_pi", 1, null)
             }
         }
         val times: MutableList<Result> = ArrayList()
         for (i in params) {
-            context.optimizationLevel = i
+            context.optimizationLevel = i!!
             val start = System.nanoTime()
             val script = context.compileString(code, "compute_pi", 1, null)
             val compilation = System.nanoTime() - start
             val execution = LongStream.generate {
                 val s = System.nanoTime()
-                script.exec(context, scope)
+                val result = script.exec(context, scope)
                 System.nanoTime() - s
             }.skip(5).limit(25).average().orElse(1.0).toLong()
             times.add(Result(i, compilation / 1000, execution / 1000))

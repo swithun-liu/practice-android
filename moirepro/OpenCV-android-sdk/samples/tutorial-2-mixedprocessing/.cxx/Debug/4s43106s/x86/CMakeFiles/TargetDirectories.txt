@@ -1,0 +1,3 @@
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-2-mixedprocessing/.cxx/Debug/4s43106s/x86/CMakeFiles/mixed_sample.dir
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-2-mixedprocessing/.cxx/Debug/4s43106s/x86/CMakeFiles/edit_cache.dir
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-2-mixedprocessing/.cxx/Debug/4s43106s/x86/CMakeFiles/rebuild_cache.dir

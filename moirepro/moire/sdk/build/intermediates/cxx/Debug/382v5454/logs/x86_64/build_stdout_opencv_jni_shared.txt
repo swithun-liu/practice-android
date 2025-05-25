@@ -1,0 +1,2 @@
+ninja: Entering directory `/Users/swithun/projects/remote/sdk/.cxx/Debug/382v5454/x86_64'
+ninja: no work to do.

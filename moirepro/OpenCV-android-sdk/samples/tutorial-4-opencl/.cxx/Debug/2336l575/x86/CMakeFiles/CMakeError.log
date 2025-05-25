@@ -1,0 +1,162 @@
+Determining if the CL_VERSION_2_2 exist failed with the following output:
+Change Dir: /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/Users/swithun/Library/Android/sdk/cmake/3.22.1/bin/ninja cmTC_eeaf2 && [1/2] Building CXX object CMakeFiles/cmTC_eeaf2.dir/CheckSymbolExists.cxx.o
+FAILED: CMakeFiles/cmTC_eeaf2.dir/CheckSymbolExists.cxx.o 
+/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=i686-none-linux-android21 --sysroot=/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/sysroot   -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security    -fPIE -MD -MT CMakeFiles/cmTC_eeaf2.dir/CheckSymbolExists.cxx.o -MF CMakeFiles/cmTC_eeaf2.dir/CheckSymbolExists.cxx.o.d -o CMakeFiles/cmTC_eeaf2.dir/CheckSymbolExists.cxx.o -c /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:2:10: fatal error: 'OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h' file not found
+#include <OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h>
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+ninja: build stopped: subcommand failed.
+
+
+File /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef CL_VERSION_2_2
+  return ((int*)(&CL_VERSION_2_2))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the CL_VERSION_2_1 exist failed with the following output:
+Change Dir: /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/Users/swithun/Library/Android/sdk/cmake/3.22.1/bin/ninja cmTC_43e5f && [1/2] Building CXX object CMakeFiles/cmTC_43e5f.dir/CheckSymbolExists.cxx.o
+FAILED: CMakeFiles/cmTC_43e5f.dir/CheckSymbolExists.cxx.o 
+/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=i686-none-linux-android21 --sysroot=/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/sysroot   -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security    -fPIE -MD -MT CMakeFiles/cmTC_43e5f.dir/CheckSymbolExists.cxx.o -MF CMakeFiles/cmTC_43e5f.dir/CheckSymbolExists.cxx.o.d -o CMakeFiles/cmTC_43e5f.dir/CheckSymbolExists.cxx.o -c /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:2:10: fatal error: 'OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h' file not found
+#include <OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h>
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+ninja: build stopped: subcommand failed.
+
+
+File /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef CL_VERSION_2_1
+  return ((int*)(&CL_VERSION_2_1))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the CL_VERSION_2_0 exist failed with the following output:
+Change Dir: /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/Users/swithun/Library/Android/sdk/cmake/3.22.1/bin/ninja cmTC_94e4e && [1/2] Building CXX object CMakeFiles/cmTC_94e4e.dir/CheckSymbolExists.cxx.o
+FAILED: CMakeFiles/cmTC_94e4e.dir/CheckSymbolExists.cxx.o 
+/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=i686-none-linux-android21 --sysroot=/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/sysroot   -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security    -fPIE -MD -MT CMakeFiles/cmTC_94e4e.dir/CheckSymbolExists.cxx.o -MF CMakeFiles/cmTC_94e4e.dir/CheckSymbolExists.cxx.o.d -o CMakeFiles/cmTC_94e4e.dir/CheckSymbolExists.cxx.o -c /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:2:10: fatal error: 'OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h' file not found
+#include <OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h>
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+ninja: build stopped: subcommand failed.
+
+
+File /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef CL_VERSION_2_0
+  return ((int*)(&CL_VERSION_2_0))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the CL_VERSION_1_2 exist failed with the following output:
+Change Dir: /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/Users/swithun/Library/Android/sdk/cmake/3.22.1/bin/ninja cmTC_def77 && [1/2] Building CXX object CMakeFiles/cmTC_def77.dir/CheckSymbolExists.cxx.o
+FAILED: CMakeFiles/cmTC_def77.dir/CheckSymbolExists.cxx.o 
+/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=i686-none-linux-android21 --sysroot=/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/sysroot   -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security    -fPIE -MD -MT CMakeFiles/cmTC_def77.dir/CheckSymbolExists.cxx.o -MF CMakeFiles/cmTC_def77.dir/CheckSymbolExists.cxx.o.d -o CMakeFiles/cmTC_def77.dir/CheckSymbolExists.cxx.o -c /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:2:10: fatal error: 'OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h' file not found
+#include <OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h>
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+ninja: build stopped: subcommand failed.
+
+
+File /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef CL_VERSION_1_2
+  return ((int*)(&CL_VERSION_1_2))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the CL_VERSION_1_1 exist failed with the following output:
+Change Dir: /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/Users/swithun/Library/Android/sdk/cmake/3.22.1/bin/ninja cmTC_b3485 && [1/2] Building CXX object CMakeFiles/cmTC_b3485.dir/CheckSymbolExists.cxx.o
+FAILED: CMakeFiles/cmTC_b3485.dir/CheckSymbolExists.cxx.o 
+/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=i686-none-linux-android21 --sysroot=/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/sysroot   -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security    -fPIE -MD -MT CMakeFiles/cmTC_b3485.dir/CheckSymbolExists.cxx.o -MF CMakeFiles/cmTC_b3485.dir/CheckSymbolExists.cxx.o.d -o CMakeFiles/cmTC_b3485.dir/CheckSymbolExists.cxx.o -c /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:2:10: fatal error: 'OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h' file not found
+#include <OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h>
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+ninja: build stopped: subcommand failed.
+
+
+File /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef CL_VERSION_1_1
+  return ((int*)(&CL_VERSION_1_1))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}
+Determining if the CL_VERSION_1_0 exist failed with the following output:
+Change Dir: /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp
+
+Run Build Command(s):/Users/swithun/Library/Android/sdk/cmake/3.22.1/bin/ninja cmTC_ab59a && [1/2] Building CXX object CMakeFiles/cmTC_ab59a.dir/CheckSymbolExists.cxx.o
+FAILED: CMakeFiles/cmTC_ab59a.dir/CheckSymbolExists.cxx.o 
+/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=i686-none-linux-android21 --sysroot=/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/sysroot   -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security    -fPIE -MD -MT CMakeFiles/cmTC_ab59a.dir/CheckSymbolExists.cxx.o -MF CMakeFiles/cmTC_ab59a.dir/CheckSymbolExists.cxx.o.d -o CMakeFiles/cmTC_ab59a.dir/CheckSymbolExists.cxx.o -c /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:2:10: fatal error: 'OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h' file not found
+#include <OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h>
+         ^~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+1 error generated.
+ninja: build stopped: subcommand failed.
+
+
+File /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/CMakeTmp/CheckSymbolExists.cxx:
+/* */
+#include <OpenCL_INCLUDE_DIR-NOTFOUND/CL/cl.h>
+
+int main(int argc, char** argv)
+{
+  (void)argv;
+#ifndef CL_VERSION_1_0
+  return ((int*)(&CL_VERSION_1_0))[argc];
+#else
+  (void)argc;
+  return 0;
+#endif
+}

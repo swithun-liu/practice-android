@@ -1,0 +1,29 @@
+{
+  "buildFiles": [
+    "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-2-mixedprocessing/jni/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/swithun/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-2-mixedprocessing/.cxx/Debug/4s43106s/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/swithun/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-2-mixedprocessing/.cxx/Debug/4s43106s/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "mixed_sample::@6890427a1f51a3e7e1df": {
+      "artifactName": "mixed_sample",
+      "abi": "x86",
+      "output": "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-2-mixedprocessing/build/intermediates/cxx/Debug/4s43106s/obj/x86/libmixed_sample.so",
+      "runtimeFiles": [
+        "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/sdk/native/libs/x86/libopencv_java4.so"
+      ]
+    }
+  }
+}

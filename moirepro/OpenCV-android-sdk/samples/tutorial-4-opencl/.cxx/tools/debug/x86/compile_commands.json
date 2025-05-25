@@ -1,0 +1,12 @@
+[
+{
+  "directory": "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86",
+  "command": "/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=i686-none-linux-android21 --sysroot=/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -DJNIpart_EXPORTS -I/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/jni -isystem /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/sdk/native/jni/include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -o CMakeFiles/JNIpart.dir/CLprocessor.cpp.o -c /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/jni/CLprocessor.cpp",
+  "file": "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/jni/CLprocessor.cpp"
+},
+{
+  "directory": "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86",
+  "command": "/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=i686-none-linux-android21 --sysroot=/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -DJNIpart_EXPORTS -I/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/jni -isystem /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/sdk/native/jni/include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -o CMakeFiles/JNIpart.dir/jni.cpp.o -c /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/jni/jni.cpp",
+  "file": "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/jni/jni.cpp"
+}
+]

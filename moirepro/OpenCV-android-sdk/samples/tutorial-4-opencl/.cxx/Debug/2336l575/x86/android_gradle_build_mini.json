@@ -1,0 +1,29 @@
+{
+  "buildFiles": [
+    "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/jni/CMakeLists.txt"
+  ],
+  "cleanCommandsComponents": [
+    [
+      "/Users/swithun/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+      "-C",
+      "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86",
+      "clean"
+    ]
+  ],
+  "buildTargetsCommandComponents": [
+    "/Users/swithun/Library/Android/sdk/cmake/3.22.1/bin/ninja",
+    "-C",
+    "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86",
+    "{LIST_OF_TARGETS_TO_BUILD}"
+  ],
+  "libraries": {
+    "JNIpart::@6890427a1f51a3e7e1df": {
+      "artifactName": "JNIpart",
+      "abi": "x86",
+      "output": "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/build/intermediates/cxx/Debug/2336l575/obj/x86/libJNIpart.so",
+      "runtimeFiles": [
+        "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/sdk/native/libs/x86/libopencv_java4.so"
+      ]
+    }
+  }
+}

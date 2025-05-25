@@ -1,0 +1,7 @@
+[
+{
+  "directory": "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-2-mixedprocessing/.cxx/Debug/4s43106s/x86",
+  "command": "/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ --target=i686-none-linux-android21 --sysroot=/Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/sysroot -Dmixed_sample_EXPORTS -I/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-2-mixedprocessing/jni -isystem /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/sdk/native/jni/include -g -DANDROID -fdata-sections -ffunction-sections -funwind-tables -fstack-protector-strong -no-canonical-prefixes -mstackrealign -D_FORTIFY_SOURCE=2 -Wformat -Werror=format-security   -fno-limit-debug-info  -fPIC -o CMakeFiles/mixed_sample.dir/jni_part.cpp.o -c /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-2-mixedprocessing/jni/jni_part.cpp",
+  "file": "/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-2-mixedprocessing/jni/jni_part.cpp"
+}
+]

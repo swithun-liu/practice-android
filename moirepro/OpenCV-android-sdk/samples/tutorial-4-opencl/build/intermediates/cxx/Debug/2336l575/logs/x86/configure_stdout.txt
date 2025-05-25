@@ -1,0 +1,12 @@
+-- The CXX compiler identification is Clang 17.0.2
+-- Detecting CXX compiler ABI info
+-- Detecting CXX compiler ABI info - done
+-- Check for working CXX compiler: /Users/swithun/Library/Android/sdk/ndk/26.3.11579264/toolchains/llvm/prebuilt/darwin-x86_64/bin/clang++ - skipped
+-- Detecting CXX compile features
+-- Detecting CXX compile features - done
+-- Using OpenCV from local SDK
+-- ANDROID_ABI=x86
+-- Found OpenCV: /Users/swithun/projects/remoteRepo/OpenCV-android-sdk (found version "4.11.0") found components: opencv_java 
+-- Configuring done
+-- Generating done
+-- Build files have been written to: /Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86

@@ -1,0 +1,1 @@
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/jni/CMakeLists.txt

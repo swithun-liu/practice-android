@@ -1,0 +1,3 @@
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/JNIpart.dir
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/edit_cache.dir
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/.cxx/Debug/2336l575/x86/CMakeFiles/rebuild_cache.dir

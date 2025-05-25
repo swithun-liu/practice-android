@@ -1,0 +1,2 @@
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/jni/CLprocessor.hpp
+/Users/swithun/projects/remoteRepo/OpenCV-android-sdk/samples/tutorial-4-opencl/jni/common.hpp
